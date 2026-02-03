@@ -19,8 +19,8 @@ st.markdown("""
 
 # --- BARRA LATERAL ---
 with st.sidebar:
-    st.write(f"**Olá visitante!**")
-    st.caption("✅ Disponível para novos projetos")
+    st.write(f"**Olá, empresário!**")
+    st.caption("✅ Estou disponível para novos projetos")
     
     st.divider()
     
@@ -129,19 +129,111 @@ st.divider()
 tab_sobre,tab_servicos, tab_portfolio = st.tabs(["🙋‍♂️ Sobre Mim","🛠️ O que eu faço", "📈 Meus Projetos"])
 
 with tab_sobre:
-    st.write("Aqui você conta sua história de estudante de Adm que virou Data Analyst.")
+    col_texto,esp, col_skills = st.columns([3,0.1, 1])
+
+    with col_texto:
+        st.markdown("")
+        st.markdown("### 🚀 Onde Negócios e Dados se Encontram")
+        st.markdown("")
+        st.info("""
+        "Não sou apenas um Analista de Dados, sou um Administrador com o domínio da tecnologia."
+        """)
+        st.markdown("")
+        st.markdown("""
+        Enquanto muitos focam apenas no código, meu foco está no **:green-background[Resultado do seu negócio]**. 
+        Identifico onde sua operação perde tempo e dinheiro (gargalos) e construo a solução técnica exata para resolver isso.
+        
+        Combino a visão estratégica de negócios com uma gama de habilidades técnicas robustas para transformar planilhas manuais 
+        e processos lentos em **:green-background[dashboards de decisão e automações inteligentes]**.
+        """)
+
+        st.divider()
+
+        c1, c2, c3 = st.columns(3)
+        c1.markdown("<h5 style='text-align: center;'>✅ Visão Sistêmica</h5>", unsafe_allow_html=True)
+        c2.markdown("<h5 style='text-align: center;'>✅ Comunicação Clara</h5>", unsafe_allow_html=True)
+        c3.markdown("<h5 style='text-align: center;'>✅ Foco em ROI</h5>", unsafe_allow_html=True)
+
+    with col_skills:
+        st.markdown("")
+        st.markdown("### 🛠️ Tecnologias")
+        
+        st.write("PYTHON")
+        st.progress(80)
+        
+        st.write("POWER BI & DAX")
+        st.progress(90)
+        
+        st.write("SQL & BANCO DE DADOS")
+        st.progress(85)
+        
+        st.write("EXCEL AVANÇADO")
+        st.progress(95)
+
+        st.write("📈 Evoluindo constantemente em Data Science.")
 
 with tab_servicos:
-    st.header("Soluções para o seu Negócio")
+    st.markdown("## 💼 Como posso impulsionar seu negócio?")
+    st.markdown("")
+    
     col_a, col_b = st.columns(2)
+    
+    # --- CARD 1: AUTOMAÇÃO ---
     with col_a:
-        st.subheader("Automação de Processos")
-        st.write("Transformo tarefas manuais repetitivas em scripts automáticos.")
-        st.markdown("- **Exemplo:** Baixar notas fiscais, atualizar planilhas, enviar e-mails.")
+        with st.container(border=True):
+            st.markdown("### 🤖 Automação de Rotinas")
+            st.markdown("*:grey[- Pare de desperdiçar talento humano com trabalho de robô.]*")
+
+            st.write("""
+            :blue-background[Crio scripts que executam tarefas repetitivas automaticamente, sem erros.]
+            """)
+
+            st.divider()
+            
+            st.write("""
+            **Principais aplicações:**
+            - ✅ **Financeiro:** Baixar e organizar Notas Fiscais (XML/PDF).
+            - ✅ **Comercial:** Disparo automático por e-mail/WhatsApp.
+            - ✅ **Sistêmico:** Preencher formulários em sistemas.
+            - ✅ **Mercado:** Monitoramento de preços da concorrência na internet (Web Scraping).
+            """)
+            
+            st.markdown("")
+            
+            with st.popover("🛠️ Ver Tecnologias Utilizadas"):
+                st.markdown("**Python** (Pandas, Selenium, Playwright)")
+                st.markdown("**Power Automate** (Fluxos Cloud/Desktop)")
+                st.markdown("**Power Automate** (Integração com Office 365)")
+
+    # --- CARD 2: B.I. & DASHBOARDS ---
     with col_b:
-        st.subheader("Business Intelligence")
-        st.write("Dashboards interativos para você parar de decidir no 'achismo'.")
-        st.markdown("- **Exemplo:** Acompanhamento de metas, fluxo de caixa, DRE gerencial.")
+        with st.container(border=True):
+            st.markdown("### 📊 Inteligência de Dados (B.I.)")
+            st.markdown("*:grey[Transforme planilhas gigantes em decisões de 1 minuto.]*")
+
+            st.write("""
+            :blue-background[Desenvolvo painéis visuais que mostram a saúde do seu negócio em tempo real.]
+            """)
+
+            st.divider()
+            
+            st.write("""
+            **Principais aplicações:**
+            - ✅ **Gestão Financeira:** (DRE, Fluxo de Caixa, Inadimplência).
+            - ✅ **Comercial:** (Metas, Comissões, Churn).
+            - ✅ **Operacional:** (Estoque, Logística, Produção).
+            - ✅ **Simulação:** Cenários de "E se?" (E se eu aumentar o preço em 5%?).
+            """)
+            
+            st.markdown("")
+            
+            with st.popover("🛠️ Ver Tecnologias Utilizadas"):
+                st.markdown("**Power BI** (DAX avançado, Power Query)")
+                st.markdown("**Streamlit** (Dashboards Web Customizados)")
+                st.markdown("**SQL** (Modelagem de Dados e ETL)")
+
+    st.markdown("")
+    st.write("##### 💡 :yellow-background[**Dica:** Não sabe qual você precisa? Geralmente começamos organizando os dados (Automação) para depois visualizá-los (B.I.).]")
 
 with tab_portfolio:
     st.info("Em construção: Aqui entrarão os meus projetos exemplo.")
