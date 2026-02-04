@@ -34,7 +34,7 @@ with st.sidebar:
     ## CRIAR UM ESQUECI A SENHA
     
     if st.button("Entrar no Sistema"):
-        if usuario == "demo" and senha == "1234":
+        if usuario == "demo" and senha == st.secrets["senha_cliente"]:
             st.success("Logado na Demonstração!")
             st.balloons()
         else:
@@ -140,7 +140,7 @@ with tab_sobre:
         """)
         st.markdown("")
         st.markdown("""
-        Enquanto muitos focam apenas no código, meu foco está no **:green-background[Resultado do seu negócio]**. 
+        Enquanto muitos focam apenas no código, meu foco está no **:green-background[Resultado ao seu negócio]**. 
         Identifico onde sua operação perde tempo e dinheiro (gargalos) e construo a solução técnica exata para resolver isso.
         
         Combino a visão estratégica de negócios com uma gama de habilidades técnicas robustas para transformar planilhas manuais 
