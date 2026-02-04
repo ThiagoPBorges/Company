@@ -27,19 +27,27 @@ with st.sidebar:
     # Área de Login
     st.header("🔒 Área do Cliente")
     st.info("Acesse seu projeto abaixo.")
-    
-    usuario = st.text_input("Usuário")
-    senha = st.text_input("Senha", type="password")
 
-    ## CRIAR UM ESQUECI A SENHA
+    if "nome_usuario" not in st.session_state:
+        st.session_state["nome_usuario"] = "Visitante"
     
-    if st.button("Entrar no Sistema"):
-        if usuario == "demo" and senha == st.secrets["senha_cliente"]:
-            st.success("Logado na Demonstração!")
-            st.balloons()
-        else:
-            st.error("Acesso restrito a clientes ativos.")
-            st.caption("Quer ter seu próprio acesso? Fale comigo.")
+    if st.session_state["nome_usuario"] == "Visitante":
+        usuario = st.text_input("Usuário")
+        senha = st.text_input("Senha", type="password")
+
+        if st.button("Entrar no Sistema"):
+
+            users = st.secrets["usuarios"]
+    
+    
+            if usuario in users and users[usuario] == senha:
+                st.session_state["nome_usuario"] = usuario
+                st.success(f"Bem-vindo, {usuario.capitalize()}!")
+                st.rerun()
+                st.balloons()
+            else:
+                st.error("Acesso restrito a clientes ativos.")
+                st.caption("Quer ter seu próprio acesso? Fale comigo.")
 
     st.divider()
 
