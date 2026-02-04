@@ -19,7 +19,7 @@ st.markdown("""
 
 # --- BARRA LATERAL ---
 with st.sidebar:
-    st.write(f"**Olá, empresário!**")
+    st.write(f"**Olá, empresário(a) !**")
     st.caption("✅ Estou disponível para novos projetos")
     
     st.divider()
@@ -108,29 +108,48 @@ with col_linked:
 
 # --- INTRODUÇÃO DA PÁGINA ---
 
-v1, intro2, foto3 = st.columns([0.5,4,2])
+with st.container(border=True):
 
-with intro2:
-    st.title("Transformando dados em eficiência.")
+    espaco, intro2,espaco, foto3 = st.columns([0.01,9,1,3.4])
+
+    with intro2:
+            st.title("Transformando dados em eficiência.")
+            
+            # SUBTÍTULO COM DESTAQUE DE COR (Badge Nativo)
+            st.markdown("### 🎓 Administração | 💻 Análise de Dados")
+            st.write("")
+            
+            # AQUI ESTÁ A MUDANÇA DO TEXTO "TRAVAR PLANILHAS"
+            # Usamos um visual de "Citação" ou "Destaque"
+            st.markdown("""
+            <div style='background-color: #f0f2f6; padding: 20px; border-radius: 10px; border-left: 5px solid #000000;'>
+                <p style='font-size: 18px; margin: 0; color: #31333F;'>
+                <b>"Não sou apenas um Analista de Dados, sou um Administrador com o domínio da tecnologia."</b><br>
+                <span style='font-size: 16px; color: #555;'>
+                Combino a visão estratégica de negócios com a precisão técnica da programação para eliminar ineficiências.
+                </span>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+
+            st.write("#####")
+
+            col_m1, col_m2, col_m3, = st.columns(3)
+
+            with col_m1:
+                st.metric(label="Foco Principal", value="ROI & Lucro", delta="Resultado")
+            with col_m2:
+                st.metric(label="Projetos", value="360º do Negócio", delta="Exclusivo")
+            with col_m3:
+                st.metric(label="Primeiro Passo", value="Diagnóstico Grátis",delta="Agendar Agora")
+
+    with foto3:
+
+        st.image(image="Utilities/Foto.png",width=300, output_format="PNG")
 
     st.write("")
 
-    st.markdown("### 🎓 Administração | 💻 Análise de dados")
-    
-    st.markdown("######")
-
-    st.write("""
-    **Pare de travar em planilhas.**
-    
-    Combino a **visão estratégica de um Administrador de Negócios** com o **poder técnico da análise de dados**
-    """)
-
-with foto3:
-
-    st.image(image="Utilities/Foto.png",width=300, output_format="PNG")
-
-st.divider()
-
+st.write("")
 
 # --- CORPO DA PÁGINA ---
 tab_sobre,tab_servicos, tab_portfolio = st.tabs(["🙋‍♂️ Sobre Mim","🛠️ O que eu faço", "📈 Meus Projetos"])
@@ -145,7 +164,7 @@ with tab_sobre:
         st.info("""
         "Não sou apenas um Analista de Dados, sou um Administrador com o domínio da tecnologia."
         """)
-        st.markdown("")
+        st.markdown("######")
         st.markdown("""
         Enquanto muitos focam apenas no código, meu foco está no **:green-background[Resultado ao seu negócio]**. 
         Identifico onde sua operação perde tempo e dinheiro (gargalos) e construo a solução técnica exata para resolver isso.
@@ -153,13 +172,6 @@ with tab_sobre:
         Combino a visão estratégica de negócios com uma gama de habilidades técnicas robustas para transformar planilhas manuais 
         e processos lentos em **:green-background[dashboards de decisão e automações inteligentes]**.
         """)
-
-        st.divider()
-
-        c1, c2, c3 = st.columns(3)
-        c1.markdown("<h5 style='text-align: center;'>✅ Visão Sistêmica</h5>", unsafe_allow_html=True)
-        c2.markdown("<h5 style='text-align: center;'>✅ Comunicação Clara</h5>", unsafe_allow_html=True)
-        c3.markdown("<h5 style='text-align: center;'>✅ Foco em ROI</h5>", unsafe_allow_html=True)
 
     with col_skills:
         st.markdown("")
