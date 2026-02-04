@@ -43,7 +43,6 @@ with st.sidebar:
             if usuario in users and users[usuario] == senha:
                 st.session_state["nome_usuario"] = usuario
                 st.success(f"Bem-vindo, {usuario.capitalize()}!")
-                st.rerun()
                 st.balloons()
             else:
                 st.error("Acesso restrito a clientes ativos.")
