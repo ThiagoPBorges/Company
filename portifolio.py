@@ -1,13 +1,14 @@
 import streamlit as st
+from datetime import date
 
-## CONFIGURAÇÃO DA PÁGINA
+## ----- PAGE CONFIGURATION -----
 st.set_page_config(
-    page_title="Thiago P.Borges | Data & Business Solutions",
+    page_title="Thiago P.Borges | Data Solutions",
     page_icon="📊",
     layout="wide"
 )
 
-# Remove a margem padrão do app
+# Remove the default app margin
 st.markdown("""
     <style>
     .block-container {
@@ -17,14 +18,61 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# --- BARRA LATERAL ---
+# ----- PAGE DESIGN -----
+page_style = """
+<style>
+    /* 1. FUNDO GERAL (Grade Fantasma Suave) */
+    [data-testid="stAppViewContainer"] {
+        background-color: #fafafa; /* Fundo base: Branco "Off-White" */
+        background-image: radial-gradient(#e5e7eb 1px, transparent 1px); /* Pontos cinza muito claro */
+        background-size: 24px 24px; /* Espaçamento generoso */
+    }
+
+    /* 2. A Barra Lateral (Sidebar) Totalmente Branca */
+    [data-testid="stSidebar"] {
+        background-color: #00000;
+        box-shadow: 2px 0 5px rgba(0,0,0,0.05); /* Sombra sutil para separar do fundo */
+        border-right: 1px solid #e0e0e0;
+    }
+
+    /* 3. CARTÕES (Containers) - Efeito "Levitação Suave" */
+    /* Fundo branco puro sobre o off-white cria contraste elegante */
+    [data-testid="stVerticalBlockBorderWrapper"] > div {
+        background-color: #ffffff !important;
+        border: 1px solid #f0f0f0 !important; /* Borda ultra-suave */
+        border-radius: 12px !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important; /* Sombra quase imperceptível */
+    }
+
+    /* 4. TIPOGRAFIA (Cinza Chumbo em vez de Preto Puro) */
+    /* Isso cansa menos a vista e parece mais premium */
+    h1, h2, h3 {
+        color: #111827 !important; 
+        letter-spacing: -0.5px; /* Deixa os títulos mais "apertadinhos" e modernos */
+    }
+    
+    p, li, .stMarkdown {
+        color: #374151 !important;
+    }
+    
+    /* 5. AJUSTE FINO NO CABEÇALHO (Transparente) */
+    [data-testid="stHeader"] {
+        background: transparent;
+    }
+</style>
+"""
+
+st.markdown(page_style, unsafe_allow_html=True)
+
+# ----- SIDEBAR -----
 with st.sidebar:
+    st.write("")
     st.write(f"**Olá, empresário(a) !**")
     st.caption("✅ Estou disponível para novos projetos")
     
     st.divider()
     
-    # Área de Login
+    # Login Area
     st.header("🔒 Área do Cliente")
     st.info("Acesse seu projeto abaixo.")
 
@@ -32,17 +80,16 @@ with st.sidebar:
         st.session_state["nome_usuario"] = "Visitante"
     
     if st.session_state["nome_usuario"] == "Visitante":
-        usuario = st.text_input("Usuário")
-        senha = st.text_input("Senha", type="password")
+        btn_user = st.text_input("Usuário")
+        btn_password = st.text_input("Senha", type="password")
 
         if st.button("Entrar no Sistema"):
 
             users = st.secrets["usuarios"]
     
-    
-            if usuario in users and users[usuario] == senha:
-                st.session_state["nome_usuario"] = usuario
-                st.success(f"Bem-vindo, {usuario.capitalize()}!")
+            if btn_user in users and users[btn_user] == btn_password:
+                st.session_state["nome_usuario"] = btn_user
+                st.success(f"Bem-vindo, {btn_user.capitalize()}!")
                 st.balloons()
             else:
                 st.error("Acesso restrito a clientes ativos.")
@@ -50,15 +97,16 @@ with st.sidebar:
 
     st.divider()
 
+
+# Contacts area
 col_whats, col_linked = st.sidebar.columns(2)
 
-numero_whatsapp = "5519992814477"
-mensagem_ola = "Olá Thiago! Vi seu portfólio e gostaria de saber mais."
-
-link_whatsapp = f"https://wa.me/{numero_whatsapp}?text={mensagem_ola.replace(' ', '%20')}"
+num_whatsapp = "5519992814477"
+message_hello = "Olá Thiago! Vi seu portfólio de Dados e Automação e gostaria de discutir uma oportunidade/projeto."
 
 with col_whats:
-        ## BOTÃO WHATSAPP
+        # Button Whatsapp
+        link_whatsapp = f"https://wa.me/{num_whatsapp}?text={message_hello.replace(' ', '%20')}"
         st.markdown(f"""
         <a href="{link_whatsapp}" target="_blank" style="text-decoration: none;">
         <button style="
@@ -82,7 +130,7 @@ with col_whats:
         """, unsafe_allow_html=True)
 
 with col_linked:
-        ## BOTÃO LINKEDIN
+        # Button Linkedin
         link_linkedin = "https://www.linkedin.com/in/thiagopborges/"
         st.markdown(f"""
         <a href="{link_linkedin}" target="_blank" style="text-decoration: none;">
@@ -106,21 +154,24 @@ with col_linked:
         </a>
         """, unsafe_allow_html=True)
 
-# --- INTRODUÇÃO DA PÁGINA ---
+## ----- SELF INTRODUCTION -----
 
 with st.container(border=True):
 
-    espaco, intro2,espaco, foto3 = st.columns([0.01,9,1,3.4])
+    whitespace, intro, whitespace2, photo = st.columns([0.01,9,1,3.4])
 
-    with intro2:
-            st.title("Transformando dados em eficiência.")
+    with intro:
+            st.title("Transformando dados em eficiência")
             
-            # SUBTÍTULO COM DESTAQUE DE COR (Badge Nativo)
-            st.markdown("### 🎓 Administração | 💻 Análise de Dados")
+            st.markdown("""
+            </h1>
+            <p style='color: #666; font-size: 18px; margin-top: 5px;'>
+                🎓 Administração | 💻 Análise de Dados | 🧾 Finanças
+            </p>
+            """, unsafe_allow_html=True)
+
             st.write("")
             
-            # AQUI ESTÁ A MUDANÇA DO TEXTO "TRAVAR PLANILHAS"
-            # Usamos um visual de "Citação" ou "Destaque"
             st.markdown("""
             <div style='background-color: #f0f2f6; padding: 20px; border-radius: 10px; border-left: 5px solid #000000;'>
                 <p style='font-size: 18px; margin: 0; color: #31333F;'>
@@ -134,144 +185,161 @@ with st.container(border=True):
 
             st.write("#####")
 
-            col_m1, col_m2, col_m3, = st.columns(3)
+            col_m1, col_m2, col_m3 = st.columns(3)
 
             with col_m1:
-                st.metric(label="Foco Principal", value="ROI & Lucro", delta="Resultado")
-            with col_m2:
-                st.metric(label="Projetos", value="360º do Negócio", delta="Exclusivo")
-            with col_m3:
-                st.metric(label="Primeiro Passo", value="Diagnóstico Grátis",delta="Agendar Agora")
+                with st.container(border=True):
+                    st.markdown("### 🎯 Foco")
+                    st.caption("- Resultado mensurável")
+                    st.markdown("")
 
-    with foto3:
+            with col_m2:
+                with st.container(border=True):
+                    st.markdown("### 🔄 Escopo")
+                    st.caption("- Do Operacional ao Estratégico")
+                    st.markdown("")
+
+            with col_m3:
+                with st.container(border=True):
+                    st.markdown("### 🚀 Próximo Passo")
+                    st.link_button("📅 Agendar Diagnóstico", link_whatsapp)
+
+    with photo:
+        year_birth = date(2003, 11, 12)
+        today = date.today()
+        age = today.year - year_birth.year - ((today.month, today.day) < (year_birth.month, year_birth.day))
 
         st.image(image="Utilities/Foto.png",width=300, output_format="PNG")
+        st.markdown(f"""
+        <div style="text-align: center; margin-top: 2px;">
+            <p style="font-weight: bold; font-size: 18px; margin-bottom: 2px;">Thiago Prochnow Borges</p>
+            <p style="color: #666; font-size: 14px;"> {age} anos | Campinas - SP</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.write("")
 
 st.write("")
 
-# --- ESTILO DAS ABAS (CSS) ---
+# Increase the font size of the tab labels
 st.markdown("""
 <style>
-    /* Aumenta o tamanho da fonte do rótulo das abas */
     .stTabs [data-baseweb="tab-list"] button [data-testid="stMarkdownContainer"] p {
         font-size: 25px; /* Tamanho da fonte */
         font-weight: bold; /* Deixa em negrito (opcional) */
     }
 """, unsafe_allow_html=True)
 
-# --- CORPO DA PÁGINA ---
-tab_sobre, tab_servicos, tab_portfolio = st.tabs(["🙋🏻‍♂️ Sobre Mim", "🛠️ O que eu faço", "📊 Meus Projetos"])
+
+## ----- TABS -----
+tab_sobre, tab_servicos, tab_portfolio = st.tabs(["🙋🏻‍♂️ Sobre Mim", "🛠️ Soluções", "📊 Portifólio"])
 
 with tab_sobre:
     col_texto,esp1,col_skills1,esp2, col_skills2 = st.columns([4,0.2,2,0.2,2])
 
     with col_texto:
         st.markdown("")
-        st.markdown("### 🚀 Onde Negócios e Dados se Encontram")
-        st.markdown("")
-        st.info("""
-        "Não sou apenas um Analista de Dados, sou um Administrador com o domínio da tecnologia."
-        """)
-        st.markdown("######")
-        st.markdown("""
-        Enquanto muitos focam apenas no código, meu foco está no **:green-background[Resultado ao seu negócio]**. 
-        Identifico onde sua operação perde tempo e dinheiro (gargalos) e construo a solução técnica exata para resolver isso.
-        
-        Combino a visão estratégica de negócios com uma gama de habilidades técnicas robustas para transformar planilhas manuais 
-        e processos lentos em **:green-background[dashboards de decisão e automações inteligentes]**.
-        """)
+        with st.container(border=True):
+            st.markdown("### Onde Negócios e Dados se Encontram")
+            st.markdown("")
+
+            st.markdown("""
+            Enquanto muitos focam apenas no código, meu foco está no **:green-background[Resultado ao seu negócio]**. 
+            Identifico onde sua operação perde tempo e dinheiro (gargalos) e construo a solução técnica exata para resolver isso.
+            
+            Combino a visão estratégica de negócios com uma gama de habilidades técnicas robustas para transformar planilhas manuais 
+            e processos lentos em **:green-background[dashboards de decisão e automações inteligentes]**.
+            """)
 
 with col_skills1:
         st.markdown("")
-        # --- BLOCO 1: TECNOLOGIA
-        st.markdown("### 🛠️ Tecnologias")
-        
-        st.write("**PYTHON**")
-        st.progress(80)
-        
-        st.write("**POWER BI & DAX**")
-        st.progress(90)
-        
-        st.write("**SQL & BANCO DE DADOS**")
-        st.progress(85)
-        
-        st.write("**EXCEL AVANÇADO**")
-        st.progress(95)
+        with st.container(border=True):
+            # --- BLOCK 1: TECHNOLOGY ---
+            st.markdown("### 🛠️ Tecnologias")
+            
+            st.write("**PYTHON**")
+            st.progress(80)
+            
+            st.write("**POWER BI & DAX**")
+            st.progress(90)
+            
+            st.write("**SQL & BANCO DE DADOS**")
+            st.progress(85)
+            
+            st.write("**EXCEL AVANÇADO**")
+            st.progress(95)
 
 with col_skills2:
+        st.markdown("")
+        with st.container(border=True):
+            st.markdown("### 💼 Domínio de Negócio")
 
-    st.markdown("")
-    st.markdown("### 💼 Domínio de Negócio")
+            st.write("")
 
-    st.write("")
+            # --- BLOCK 2: Visualization & BI ---
+            with st.expander("📊 **Análise de dados**"):
+                with st.expander("📊 **Business Intelligence**"):
+                    st.markdown("""
+                    Transformação de dados brutos em narrativa de negócio (**Data Storytelling**):
+                    
+                    * 🎨 **Dashboards Estratégicos:** Criação de painéis interativos para monitoramento de OKRs e KPIs de ativos, com foco em UX/UI para facilitar a leitura executiva.
+                    * 🧠 **Modelagem Avançada:** Domínio de **DAX** e **Linguagem M (Power Query)** para tratamento de dados complexos e relacionamento entre múltiplas tabelas fatos/dimensão.
+                    * 📈 **Excel Avançado:** Uso de Power Pivot e Macros (VBA) para modelagens financeiras rápidas e cenários de *What-If*.
+                    """)
 
-    # --- BLOCO 1: VISUALIZAÇÃO & BI (O que o chefe vê) ---
-    with st.expander("📊 **Análise de dados**"):
-        # --- BLOCO 1: VISUALIZAÇÃO & BI (O que o chefe vê) ---
-        with st.expander("📊 **Business Intelligence**"):
-            st.markdown("""
-            Transformação de dados brutos em narrativa de negócio (**Data Storytelling**):
+                # --- AUTOMAÇÃO & PRODUTIVIDADE ---
+                with st.expander("⚙️ **Automação de Processos**"):
+                    st.markdown("""
+                    Redução de trabalho manual para foco em análise estratégica (**RPA**):
+                    
+                    * 🤖 **Power Automate:** Criação de fluxos para coleta automática de dados, envio de alertas de anomalias e atualização de bases sem intervenção humana.
+                    * 📱 **Power Apps:** Desenvolvimento de interfaces (formulários) para entrada de dados em campo, garantindo padronização e governança na origem.
+                    """)
+
+                # --- BLOCO 2: ENGENHARIA & MANIPULAÇÃO (O trabalho pesado) ---
+                with st.expander("🐍 **Engenharia de Dados**"):
+                    st.markdown("""
+                    Garantia da integridade e disponibilidade da informação (**ETL**):
+                    * 🧹 **Saneamento de Dados (Pandas/NumPy):** Scripts em Python para limpeza de bases cadastrais, identificando duplicidades e erros de preenchimento.
+                    * 🗄️ **Consultas Estruturadas (SQL):** Extração de dados via *queries* otimizadas (JOINS, CTEs, Window Functions) para alimentar os relatórios de gestão.
+                    * 🔗 **Integração de Fontes:** Consolidação de dados vindos de diversas origens (SAP, Planilhas, Sistemas Legados) em uma única fonte da verdade.
+                    """)
             
-            * 🎨 **Dashboards Estratégicos:** Criação de painéis interativos para monitoramento de OKRs e KPIs de ativos, com foco em UX/UI para facilitar a leitura executiva.
-            * 🧠 **Modelagem Avançada:** Domínio de **DAX** e **Linguagem M (Power Query)** para tratamento de dados complexos e relacionamento entre múltiplas tabelas fatos/dimensão.
-            * 📈 **Excel Avançado:** Uso de Power Pivot e Macros (VBA) para modelagens financeiras rápidas e cenários de *What-If*.
-            """)
+            st.write("")
 
-        # --- AUTOMAÇÃO & PRODUTIVIDADE ---
-        with st.expander("⚙️ **Automação de Processos**"):
-            st.markdown("""
-            Redução de trabalho manual para foco em análise estratégica (**RPA**):
-            
-            * 🤖 **Power Automate:** Criação de fluxos para coleta automática de dados, envio de alertas de anomalias e atualização de bases sem intervenção humana.
-            * 📱 **Power Apps:** Desenvolvimento de interfaces (formulários) para entrada de dados em campo, garantindo padronização e governança na origem.
-            """)
+            # --- ADMINISTRAÇÃO ---
+            with st.expander("🎓 **Administração & Processos**"):
+                st.markdown("""
+                Aplicação da visão sistêmica para conectar tecnologia e negócio:
+                
+                * 🔄 **Mapeamento de Processos:** Identificação de gargalos em fluxos de trabalho para propor automações com Power Automate/Python.
+                * 🎯 **Gestão por Indicadores:** Definição e acompanhamento de KPIs e OKRs para garantir o alinhamento entre a operação e a estratégia da empresa.
+                * 🏢 **Visão Organizacional:** Entendimento da interdependência entre áreas (Financeiro, Operações e TI) para liderar projetos transversais.
+                """)
 
-        # --- BLOCO 2: ENGENHARIA & MANIPULAÇÃO (O trabalho pesado) ---
-        with st.expander("🐍 **Engenharia de Dados**"):
-            st.markdown("""
-            Garantia da integridade e disponibilidade da informação (**ETL**):
-            * 🧹 **Saneamento de Dados (Pandas/NumPy):** Scripts em Python para limpeza de bases cadastrais, identificando duplicidades e erros de preenchimento.
-            * 🗄️ **Consultas Estruturadas (SQL):** Extração de dados via *queries* otimizadas (JOINS, CTEs, Window Functions) para alimentar os relatórios de gestão.
-            * 🔗 **Integração de Fontes:** Consolidação de dados vindos de diversas origens (SAP, Planilhas, Sistemas Legados) em uma única fonte da verdade.
-            """)
-    
-    st.write("")
+            st.write("")
 
-    # --- ADMINISTRAÇÃO ---
-    with st.expander("🎓 **Administração & Processos**"):
-        st.markdown("""
-        Aplicação da visão sistêmica para conectar tecnologia e negócio:
-        
-        * 🔄 **Mapeamento de Processos:** Identificação de gargalos em fluxos de trabalho para propor automações com Power Automate/Python.
-        * 🎯 **Gestão por Indicadores:** Definição e acompanhamento de KPIs e OKRs para garantir o alinhamento entre a operação e a estratégia da empresa.
-        * 🏢 **Visão Organizacional:** Entendimento da interdependência entre áreas (Financeiro, Operações e TI) para liderar projetos transversais.
-        """)
+            # --- FINANÇAS ---
+            with st.expander("💰 **Contabilidade & Finanças**"):
+                st.markdown("""
+                Foco na integridade dos dados financeiros para suporte à decisão:
+                
+                * 📉 **Análise de Demonstrativos:** Leitura e interpretação de DRE e Fluxo de Caixa para diagnóstico de saúde financeira e eficiência operacional.
+                * ⚖️ **Conciliação Físico-Contábil:** Cruzamento de bases de dados para garantir que o inventário físico reflita o Balanço Patrimonial.
+                * 💵 **Gestão Orçamentária:** Classificação correta de custos (CAPEX vs OPEX) e monitoramento de desvios (Orçado x Realizado).
+                """)
 
-    st.write("")
+            st.write("")
 
-    # --- FINANÇAS ---
-    with st.expander("💰 **Contabilidade & Finanças**"):
-        st.markdown("""
-        Foco na integridade dos dados financeiros para suporte à decisão:
-        
-        * 📉 **Análise de Demonstrativos:** Leitura e interpretação de DRE e Fluxo de Caixa para diagnóstico de saúde financeira e eficiência operacional.
-        * ⚖️ **Conciliação Físico-Contábil:** Cruzamento de bases de dados para garantir que o inventário físico reflita o Balanço Patrimonial.
-        * 💵 **Gestão Orçamentária:** Classificação correta de custos (CAPEX vs OPEX) e monitoramento de desvios (Orçado x Realizado).
-        """)
-
-    st.write("")
-
-    # --- GESTÃO DE ATIVOS ---
-    with st.expander("⚡ **Gestão de Ativos**"):
-        st.markdown("""
-        Transformo dados físicos e contábeis em **estratégia financeira**:
-        
-        * 📊 **Inteligência Visual (Power BI):** Desenvolvimento de dashboards para consolidar indicadores de performance (OKRs) e métricas de capitalização, acelerando em até 70% o acesso à informação.
-        * ⚙️ **Automação de Processos (Python/Power Apps/Automate):** Implantação de RPA para consolidação de indicadores e redução de retrabalho operacional, garantindo a integridade dos dados na ponta.
-        * 🐍 **Conciliação Avançada (Python & SQL):** Scripts para cruzamento de grandes bases de dados e conciliação de receita operacional, apoiando a tomada de decisão.
-        """)
+            # --- GESTÃO DE ATIVOS ---
+            with st.expander("⚡ **Gestão de Ativos**"):
+                st.markdown("""
+                Transformo dados físicos e contábeis em **estratégia financeira**:
+                
+                * 📊 **Inteligência Visual (Power BI):** Desenvolvimento de dashboards para consolidar indicadores de performance (OKRs) e métricas de capitalização, acelerando em até 70% o acesso à informação.
+                * ⚙️ **Automação de Processos (Python/Power Apps/Automate):** Implantação de RPA para consolidação de indicadores e redução de retrabalho operacional, garantindo a integridade dos dados na ponta.
+                * 🐍 **Conciliação Avançada (Python & SQL):** Scripts para cruzamento de grandes bases de dados e conciliação de receita operacional, apoiando a tomada de decisão.
+                """)
 
 with tab_servicos:
     st.markdown("")
