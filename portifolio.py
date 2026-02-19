@@ -455,4 +455,4 @@ with tab_portfolio:
             """)
             
             # O BOTÃO PARA A PÁGINA
-            st.page_link("pages/1_💎_Detector_de_VIPs.py", label=":blue-background[***Testar Ferramenta Agora***]", icon="🚀")
+            st.page_link("pages/1_detector_vips.py", label="Testar Ferramenta Agora", icon="🚀")
