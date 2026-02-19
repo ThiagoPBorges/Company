@@ -24,38 +24,46 @@ page_style = """
     /* 1. FUNDO GERAL (Grade Fantasma Suave) */
     [data-testid="stAppViewContainer"] {
         background-color: #fafafa; /* Fundo base: Branco "Off-White" */
-        background-image: radial-gradient(#e5e7eb 1px, transparent 1px); /* Pontos cinza muito claro */
-        background-size: 24px 24px; /* Espaçamento generoso */
+        background-image: radial-gradient(#d1d5db 0.4px, transparent 1px); /* Pontos um pouco mais visíveis para o vidro funcionar */
+        background-size: 24px 24px; 
     }
 
-    /* 2. A Barra Lateral (Sidebar) Totalmente Branca */
+    /* 2. BARRA LATERAL (SIDEBAR) - Sombra Elegante */
     [data-testid="stSidebar"] {
-        background-color: #00000;
-        box-shadow: 2px 0 5px rgba(0,0,0,0.05); /* Sombra sutil para separar do fundo */
-        border-right: 1px solid #e0e0e0;
+        background-color: #0000000 !important; 
+        /* 5px para a direita, 30px de difusão, cor preta com 20% de opacidade */
+        box-shadow: 2px 0 30px rgba(0,0,0,0.3) !important;
+        border-right: 1px solid #e5e7eb;
     }
 
-    /* 3. CARTÕES (Containers) - Efeito "Levitação Suave" */
-    /* Fundo branco puro sobre o off-white cria contraste elegante */
+    /* 3. CARTÕES DE VIDRO (GLASSMORPHISM) */
     [data-testid="stVerticalBlockBorderWrapper"] > div {
-        background-color: #ffffff !important;
-        border: 1px solid #f0f0f0 !important; /* Borda ultra-suave */
+        /* Fundo Branco com 70% de opacidade (Aumentei um pouco para garantir leitura) */
+        background-color: rgba(255, 255, 255, 0.7) !important; 
+        
+        /* O Desfoque do vidro */
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        
+        /* Borda fina e semi-transparente */
+        border: 1px solid rgba(255, 255, 255, 0.6) !important;
         border-radius: 12px !important;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important; /* Sombra quase imperceptível */
+        
+        /* Sombra difusa para elevar o cartão */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
     }
 
-    /* 4. TIPOGRAFIA (Cinza Chumbo em vez de Preto Puro) */
-    /* Isso cansa menos a vista e parece mais premium */
+    /* 4. TIPOGRAFIA */
     h1, h2, h3 {
         color: #111827 !important; 
-        letter-spacing: -0.5px; /* Deixa os títulos mais "apertadinhos" e modernos */
+        letter-spacing: -0.5px;
     }
     
     p, li, .stMarkdown {
-        color: #000000 !important;
+        color: #1f2937 !important; /* Cinza escuro (quase preto) é mais elegante que #000000 */
     }
     
-    /* 5. AJUSTE FINO NO CABEÇALHO (Transparente) */
+    /* 5. CABEÇALHO TRANSPARENTE */
     [data-testid="stHeader"] {
         background: transparent;
     }
@@ -199,13 +207,13 @@ with st.container(border=True):
             with col_m1:
                 with st.container(border=True):
                     st.markdown("### 🎯 Foco")
-                    st.caption("- Resultado mensurável")
+                    st.caption("Resultado mensurável")
                     st.markdown("")
 
             with col_m2:
                 with st.container(border=True):
                     st.markdown("### 🧭 Escopo")
-                    st.caption("- Do Operacional ao Estratégico")
+                    st.caption("Do Operacional ao Estratégico")
                     st.markdown("")
 
             with col_m3:
@@ -244,7 +252,7 @@ st.markdown("""
 tab_sobre, tab_servicos, tab_portfolio = st.tabs(["🙋🏻‍♂️ Sobre Mim", "🛠️ Soluções", "📊 Portifólio"])
 
 with tab_sobre:
-    col_text,esp1,col_skills1,esp2, col_skills2 = st.columns([4,0.2,2,0.2,2])
+    col_text,esp1,col_skills1,esp2, col_skills2 = st.columns([4,0.2,2,0.2,2.9])
 
     with col_text:
         st.markdown("")
@@ -281,12 +289,14 @@ with col_skills1:
             st.write("**EXCEL AVANÇADO**")
             st.progress(95)
 
+            st.markdown("####")
+
 with col_skills2:
         st.markdown("")
         with st.container(border=True):
             st.markdown("### 💼 Domínio de Negócio")
 
-            st.write("")
+            st.markdown("")
 
             # --- BLOCK 2: Visualization & BI ---
             with st.expander("📊 **Análise de dados**"):
@@ -353,6 +363,8 @@ with col_skills2:
                 * ⚙️ **Automação de Processos (Python/Power Apps/Automate):** Implantação de RPA para consolidação de indicadores e redução de retrabalho operacional, garantindo a integridade dos dados na ponta.
                 * 🐍 **Conciliação Avançada (Python & SQL):** Scripts para cruzamento de grandes bases de dados e conciliação de receita operacional, apoiando a tomada de decisão.
                 """)
+            st.write("###")
+            
 
 with tab_servicos:
     st.markdown("")
@@ -415,8 +427,9 @@ with tab_servicos:
                 st.markdown("**Streamlit** (Dashboards Web Customizados)")
                 st.markdown("**SQL** (Modelagem de Dados e ETL)")
 
-    st.markdown("")
-    st.write("##### 💡 :yellow-background[**Dica:** Não sabe qual você precisa? Geralmente começamos organizando os dados (Automação) para depois visualizá-los (B.I.).]")
+    st.markdown("######")
+    st.info("**Dica:** Não sabe por onde começar? Geralmente organizamos os dados (**Automação**) para depois visualizá-los (**B.I.**).", icon="💡")
+    st.markdown("######")
 
 
 with tab_portfolio:
@@ -430,7 +443,7 @@ with tab_portfolio:
         col_img, col_info = st.columns([1, 2])
         
         with col_img:
-            st.image("Utilities\Detector de VIPs.png", use_container_width=True)
+            st.image("Utilities/Detector de VIPs.png", use_container_width=True)
         
         with col_info:
             st.subheader("Detector de Oportunidades (RFM)")

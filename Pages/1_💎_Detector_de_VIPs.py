@@ -12,14 +12,15 @@ st.set_page_config(
 # --- FUNÇÕES DE CARREGAMENTO (ETL) ---
 @st.cache_data
 def carregar_dados_exemplo():
-    # Cria um DataFrame falso na memória para demonstração
     dados = {
-        'ID_Cliente': [101, 102, 103, 104, 105, 106, 107, 108],
-        'Nome': ['Padaria do João', 'Mercado Silva', 'Oficina Top', 'Dona Maria', 'Pedro Tech', 'Ana Modas', 'Bar do Zé', 'Loja 10'],
-        'Data_Ultima_Compra': pd.to_datetime(['2024-02-01', '2023-11-15', '2024-01-20', '2023-05-10', '2024-02-03', '2023-12-01', '2024-01-30', '2023-08-20']),
-        'Total_Gasto': [5000, 1200, 8500, 150, 12000, 3000, 450, 800],
-        'Frequencia_Compras': [12, 3, 20, 1, 25, 5, 2, 2]
-    }
+    'ID_Cliente': [113, 116, 106, 110, 108, 114, 105, 118, 111, 105, 103, 119, 120, 103, 103, 104, 102, 109, 106, 107, 118, 119, 114, 115, 104, 117, 112, 108, 113, 110, 106, 111, 110, 111, 112, 105, 119, 109, 108, 107, 111, 115, 102, 117, 111, 104, 115, 117, 112, 102, 116, 104, 112, 111, 120, 119, 116, 101, 102, 107, 116, 119, 105, 112, 106, 112, 104, 118, 110, 114, 116, 101, 103, 106, 106, 107, 104, 118, 117, 103, 118, 107, 115, 101, 101, 104, 114, 105, 102, 110, 110, 107, 116, 105, 106, 117, 104, 115, 119, 104],
+    'Nome': ['TransNacional', 'Limpeza & Service', 'Inova Marketing', 'Indústria MetalSul', 'FarmaMed Distribuição', 'Segurança Prime', 'Logística Veloz', 'Engenharia Norte', 'Comércio Global', 'Logística Veloz', 'Grupo Horizonte', 'Importadora Águia', 'Rede Supermix', 'Grupo Horizonte', 'Grupo Horizonte', 'Consultoria Exata', 'Distribuidora Aliança', 'Agro Verde', 'Inova Marketing', 'Construtora Base', 'Engenharia Norte', 'Importadora Águia', 'Segurança Prime', 'Auto Peças Rota', 'Consultoria Exata', 'Advocacia Silva', 'Soft Systems', 'FarmaMed Distribuição', 'TransNacional', 'Indústria MetalSul', 'Inova Marketing', 'Comércio Global', 'Indústria MetalSul', 'Comércio Global', 'Soft Systems', 'Logística Veloz', 'Importadora Águia', 'Agro Verde', 'FarmaMed Distribuição', 'Construtora Base', 'Comércio Global', 'Auto Peças Rota', 'Distribuidora Aliança', 'Advocacia Silva', 'Comércio Global', 'Consultoria Exata', 'Auto Peças Rota', 'Advocacia Silva', 'Soft Systems', 'Distribuidora Aliança', 'Limpeza & Service', 'Consultoria Exata', 'Soft Systems', 'Comércio Global', 'Rede Supermix', 'Importadora Águia', 'Limpeza & Service', 'TechSolutions Ltda', 'Distribuidora Aliança', 'Construtora Base', 'Limpeza & Service', 'Importadora Águia', 'Logística Veloz', 'Soft Systems', 'Inova Marketing', 'Soft Systems', 'Consultoria Exata', 'Engenharia Norte', 'Indústria MetalSul', 'Segurança Prime', 'Limpeza & Service', 'TechSolutions Ltda', 'Grupo Horizonte', 'Inova Marketing', 'Inova Marketing', 'Construtora Base', 'Consultoria Exata', 'Engenharia Norte', 'Advocacia Silva', 'Grupo Horizonte', 'Engenharia Norte', 'Construtora Base', 'Auto Peças Rota', 'TechSolutions Ltda', 'TechSolutions Ltda', 'Consultoria Exata', 'Segurança Prime', 'Logística Veloz', 'Distribuidora Aliança', 'Indústria MetalSul', 'Indústria MetalSul', 'Construtora Base', 'Limpeza & Service', 'Logística Veloz', 'Inova Marketing', 'Advocacia Silva', 'Consultoria Exata', 'Auto Peças Rota', 'Importadora Águia', 'Consultoria Exata'],
+    'Data_Compra': pd.to_datetime(['2023-06-19', '2023-04-08', '2023-10-14', '2023-08-18', '2023-11-23', '2023-03-31', '2023-11-24', '2023-10-07', '2023-03-29', '2023-06-06', '2023-05-27', '2023-04-16', '2023-04-22', '2023-07-08', '2023-08-05', '2024-01-07', '2023-07-12', '2023-08-26', '2023-03-28', '2023-11-16', '2023-06-17', '2023-09-06', '2023-06-09', '2024-01-20', '2023-05-04', '2024-02-04', '2023-08-20', '2023-12-18', '2023-08-20', '2023-04-05', '2023-05-21', '2023-07-14', '2023-10-07', '2023-04-12', '2023-04-09', '2023-09-18', '2023-05-15', '2023-07-15', '2023-06-19', '2023-02-25', '2023-02-27', '2023-03-23', '2023-10-22', '2024-02-09', '2023-02-08', '2023-05-26', '2023-10-25', '2023-08-26', '2023-09-02', '2023-07-12', '2023-11-11', '2023-12-03', '2024-01-10', '2023-02-18', '2023-08-13', '2023-06-25', '2023-05-26', '2023-08-15', '2023-11-02', '2023-01-06', '2023-04-25', '2023-06-01', '2023-12-22', '2023-03-07', '2023-01-01', '2023-07-30', '2023-04-26', '2023-06-28', '2023-05-21', '2023-09-19', '2023-01-19', '2023-11-26', '2023-12-14', '2023-08-08', '2023-04-19', '2023-05-14', '2023-11-05', '2024-01-20', '2023-06-12', '2023-03-26', '2023-03-31', '2023-02-20', '2023-08-23', '2023-08-16', '2023-09-02', '2023-02-19', '2023-04-24', '2023-01-15', '2023-06-22', '2023-02-26', '2023-09-04', '2023-05-26', '2023-10-24', '2023-01-07', '2023-07-20', '2023-09-18', '2023-07-21', '2023-01-31', '2023-02-17', '2023-10-12']),
+    'Total_Gasto': [42559.28, 20889.48, 13454.45, 16174.75, 11614.17, 17831.68, 16638.97, 22956.89, 32511.89, 23157.06, 2743.41, 46170.63, 30021.79, 41237.19, 45194.94, 32550.23, 29918.25, 31053.14, 17519.47, 36027.35, 15881.72, 40178.12, 9554.72, 44506.26, 47961.38, 5313.14, 46333.03, 1977.8, 25528.39, 24648.52, 25589.17, 44243.81, 15570.17, 36489.14, 21262.69, 36114.47, 39994.0, 34107.03, 45204.93, 38632.58, 16330.36, 49561.73, 6280.65, 21240.6, 30648.55, 4090.33, 23082.73, 27068.87, 49483.37, 43891.25, 38557.77, 23373.29, 7429.78, 26902.2, 49671.05, 1641.26, 35125.03, 35211.84, 22763.22, 10243.32, 18060.41, 48511.81, 20387.42, 32702.88, 5488.74, 37913.35, 39541.45, 3865.68, 45909.56, 38211.67, 3264.01, 7604.55, 5588.29, 30399.96, 31071.04, 22101.12, 33111.92, 40508.86, 25216.14, 11678.39, 22386.32, 4666.58, 40813.41, 45153.35, 30449.3, 21759.96, 47651.8, 46385.09, 20439.98, 7535.41, 46418.49, 43583.2, 19981.31, 7307.5, 40111.88, 9829.85, 36767.4, 9204.3, 48157.57, 16157.35],
+    'Categoria': ['Eletrônicos', 'Alimentos', 'Ferragens', 'Alimentos', 'Serviços', 'Alimentos', 'Ferragens', 'Automotivo', 'Escritório', 'Ferragens', 'Alimentos', 'Alimentos', 'Alimentos', 'Escritório', 'Ferragens', 'Serviços', 'Serviços', 'Ferragens', 'Alimentos', 'Limpeza', 'Automotivo', 'Limpeza', 'Automotivo', 'Automotivo', 'Automotivo', 'Limpeza', 'Eletrônicos', 'Limpeza', 'Serviços', 'Limpeza', 'Limpeza', 'Ferragens', 'Escritório', 'Eletrônicos', 'Ferragens', 'Alimentos', 'Alimentos', 'Serviços', 'Serviços', 'Ferragens', 'Limpeza', 'Limpeza', 'Alimentos', 'Serviços', 'Alimentos', 'Automotivo', 'Ferragens', 'Limpeza', 'Limpeza', 'Escritório', 'Escritório', 'Eletrônicos', 'Serviços', 'Escritório', 'Alimentos', 'Escritório', 'Alimentos', 'Limpeza', 'Serviços', 'Ferragens', 'Eletrônicos', 'Escritório', 'Eletrônicos', 'Ferragens', 'Ferragens', 'Serviços', 'Alimentos', 'Limpeza', 'Ferragens', 'Ferragens', 'Serviços', 'Eletrônicos', 'Escritório', 'Alimentos', 'Serviços', 'Serviços', 'Ferragens', 'Escritório', 'Serviços', 'Serviços', 'Automotivo', 'Ferragens', 'Automotivo', 'Limpeza', 'Eletrônicos', 'Alimentos', 'Escritório', 'Ferragens', 'Eletrônicos', 'Automotivo', 'Automotivo', 'Limpeza', 'Ferragens', 'Serviços', 'Ferragens', 'Automotivo', 'Ferragens', 'Serviços', 'Alimentos', 'Alimentos'],
+    'Forma_Pagamento': ['Transferência', 'Transferência', 'Pix', 'Pix', 'Pix', 'Pix', 'Pix', 'Pix', 'Cartão de Crédito', 'Pix', 'Cartão de Crédito', 'Pix', 'Transferência', 'Transferência', 'Boleto', 'Cartão de Crédito', 'Pix', 'Pix', 'Pix', 'Boleto', 'Pix', 'Transferência', 'Transferência', 'Pix', 'Transferência', 'Pix', 'Boleto', 'Boleto', 'Transferência', 'Transferência', 'Cartão de Crédito', 'Pix', 'Transferência', 'Cartão de Crédito', 'Cartão de Crédito', 'Cartão de Crédito', 'Transferência', 'Transferência', 'Boleto', 'Cartão de Crédito', 'Transferência', 'Boleto', 'Boleto', 'Cartão de Crédito', 'Boleto', 'Pix', 'Pix', 'Cartão de Crédito', 'Cartão de Crédito', 'Cartão de Crédito', 'Pix', 'Cartão de Crédito', 'Boleto', 'Transferência', 'Pix', 'Transferência', 'Boleto', 'Transferência', 'Transferência', 'Cartão de Crédito', 'Cartão de Crédito', 'Boleto', 'Pix', 'Transferência', 'Transferência', 'Boleto', 'Transferência', 'Cartão de Crédito', 'Cartão de Crédito', 'Boleto', 'Cartão de Crédito', 'Transferência', 'Pix', 'Boleto', 'Transferência', 'Pix', 'Pix', 'Transferência', 'Transferência', 'Transferência', 'Cartão de Crédito', 'Transferência', 'Boleto', 'Boleto', 'Cartão de Crédito', 'Pix', 'Transferência', 'Transferência', 'Boleto', 'Pix', 'Cartão de Crédito', 'Transferência', 'Pix', 'Transferência', 'Boleto', 'Transferência', 'Cartão de Crédito', 'Pix', 'Boleto', 'Transferência'],
+    'Vendedor': ['Fernanda Lima', 'Mariana Costa', 'Carlos Souza', 'Ricardo Oliveira', 'Ana Silva', 'Carlos Souza', 'Mariana Costa', 'Ana Silva', 'Carlos Souza', 'Ricardo Oliveira', 'Fernanda Lima', 'Carlos Souza', 'Mariana Costa', 'Carlos Souza', 'Mariana Costa', 'Mariana Costa', 'Mariana Costa', 'Ana Silva', 'Carlos Souza', 'Ricardo Oliveira', 'Ana Silva', 'Carlos Souza', 'Mariana Costa', 'Fernanda Lima', 'Ana Silva', 'Ana Silva', 'Fernanda Lima', 'Fernanda Lima', 'Carlos Souza', 'Mariana Costa', 'Ana Silva', 'Carlos Souza', 'Carlos Souza', 'Mariana Costa', 'Carlos Souza', 'Fernanda Lima', 'Ana Silva', 'Mariana Costa', 'Mariana Costa', 'Ana Silva', 'Ana Silva', 'Ricardo Oliveira', 'Fernanda Lima', 'Ricardo Oliveira', 'Fernanda Lima', 'Ana Silva', 'Ricardo Oliveira', 'Fernanda Lima', 'Ana Silva', 'Fernanda Lima', 'Ana Silva', 'Mariana Costa', 'Mariana Costa', 'Fernanda Lima', 'Ana Silva', 'Mariana Costa', 'Carlos Souza', 'Fernanda Lima', 'Ana Silva', 'Ana Silva', 'Mariana Costa', 'Mariana Costa', 'Fernanda Lima', 'Mariana Costa', 'Mariana Costa', 'Mariana Costa', 'Fernanda Lima', 'Ana Silva', 'Fernanda Lima', 'Fernanda Lima', 'Carlos Souza', 'Mariana Costa', 'Fernanda Lima', 'Carlos Souza', 'Carlos Souza', 'Carlos Souza', 'Mariana Costa', 'Carlos Souza', 'Ricardo Oliveira', 'Ana Silva', 'Fernanda Lima', 'Ana Silva', 'Carlos Souza', 'Ricardo Oliveira', 'Ricardo Oliveira', 'Fernanda Lima', 'Fernanda Lima', 'Mariana Costa', 'Mariana Costa', 'Carlos Souza', 'Mariana Costa', 'Mariana Costa', 'Mariana Costa', 'Ana Silva', 'Ricardo Oliveira', 'Ana Silva', 'Ricardo Oliveira', 'Ana Silva', 'Mariana Costa', 'Ricardo Oliveira'],
+}
     return pd.DataFrame(dados)
 
 # --- INTERFACE PRINCIPAL ---
@@ -61,154 +62,52 @@ elif usar_exemplo:
     df = carregar_dados_exemplo()
     st.sidebar.info("Utilizando dados fictícios de demonstração.")
 
-# --- O DASHBOARD (SÓ APARECE SE TIVER DADOS) ---
+# --- DASHBOARD ---
 if df is not None:
-    # Mostra um "cheiro" dos dados
     st.subheader("📋 Visão Geral dos Dados")
-    st.dataframe(df.head(), use_container_width=True)
-    
-    st.info("👆 Se você está vendo a tabela acima, a Etapa 1 (Conexão) funcionou!")
+    st.dataframe(df, hide_index=True, use_container_width=True)
     
     # AQUI ENTRARÁ O CÁLCULO RFM E A IA DEPOIS
-    
+
+    st.markdown("---")
+    st.subheader("⚙️ Mapeamento de Vendas")
+    st.info("Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        col_id = st.selectbox("Coluna de ID/NOME do Cliente", df.columns, index=0)
+        
+    with col2:
+        col_data = st.selectbox("Coluna da DATA da Venda", df.columns, index=1)
+        
+    with col3:
+        col_valor = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=2)
+
+    # --- CÁLCULO ---
+    if st.button("🚀 Processar e Calcular RFM", type="primary"):
+        with st.spinner("Analisando todas as vendas..."):
+            time.sleep(5)
+
+        last_sale_date = df[col_data].max()
+
+        df_rfm = df.groupby(col_id).agg({
+            col_data: lambda x: (last_sale_date - x.max()).days,
+            col_valor: 'sum',
+            col_id: 'count'
+        })
+
+        df_rfm.rename(columns={
+            col_data: 'Recência (Dias)',
+            col_valor: 'Monetário (R$)',
+            col_id: 'Frequência (Vezes)'
+        }, inplace=True)
+
+        st.write("### 📊 Resultado da Análise")
+        st.dataframe(df_rfm.reset_index(), hide_index=True, use_container_width=True)
+
+
+
 else:
     # Tela de "Venda" quando não tem nada carregado
     st.info("👈 Comece fazendo upload do arquivo ou selecionando o modo Exemplo na barra lateral.")
-
-# ... (Seu código anterior de carga do df continua igual)
-
-st.markdown("---")
-st.subheader("⚙️ Mapeamento de Vendas")
-st.info("Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    col_id = st.selectbox("Coluna de ID/NOME do Cliente", df.columns, index=0)
-    
-with col2:
-    col_data = st.selectbox("Coluna da DATA da Venda", df.columns, index=1)
-    
-with col3:
-    col_valor = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=2)
-
-# --- CÁLCULO ---
-if st.button("🚀 Processar e Calcular RFM", type="primary"):
-    with st.spinner("Analisando todas as vendas..."):
-        time.sleep(5)
-        
-        try:
-            # Tratamento de Datas
-            df[col_data] = pd.to_datetime(df[col_data], errors='coerce')
-            
-            # Data de referência (Dia seguinte à última venda da planilha)
-            ultima_venda = df[col_data].max() + pd.Timedelta(days=1)
-            
-            # GROUPBY
-            df_rfm = df.groupby(col_id).agg({
-                # Recência: Hoje - Máxima Data
-                col_data: lambda x: (ultima_venda - x.max()).days,
-                # Frequência: Contagem de linhas
-                col_id: 'count',  
-                # Monetário: Soma dos valores                              
-                col_valor: 'sum'                                
-            }).rename(columns={
-                col_data: 'Recencia',
-                col_id: 'Frequencia',
-                col_valor: 'Monetario'
-            }).reset_index()
-            
-            # Exibição do Resultado
-            st.success("✅ Cálculo realizado com sucesso!")
-            st.markdown("### 📊 Tabela RFM Calculada")
-            st.caption(f"Transformamos {len(df)} vendas em {len(df_rfm)} clientes únicos.")
-            
-            st.dataframe(df_rfm, hide_index=True, use_container_width=True)
-            
-            # Dica para o usuário entender o que aconteceu
-            with st.expander("ℹ️ Como esse cálculo foi feito?"):
-                st.write(f"""
-                O sistema agrupou as vendas por **{col_id}**:
-                - **Recência:** Calculada subtraindo a última compra encontrada da data {ultima_venda.date()}.
-                - **Frequência:** Contamos quantas vezes o cliente apareceu na planilha.
-                - **Monetário:** Somamos todos os valores da coluna **{col_valor}**.
-                """)
-
-            # Salva no session_state para não perder se clicar em outro lugar
-            st.session_state['df_rfm'] = df_rfm
-            
-        except Exception as e:
-            st.error(f"Erro no cálculo: {e}. Verifique se as colunas selecionadas contêm números e datas válidos.")
-    # --- ETAPA 3: SEGMENTAÇÃO (Dar notas de 1 a 5) ---
-
-    # Verifica se o cálculo RFM já foi feito e está na memória
-    if 'df_rfm' in st.session_state:
-        df_rfm = st.session_state['df_rfm']
-        
-        st.divider()
-        st.subheader("🏆 Segmentação de Clientes")
-        st.info("Agora vamos dar notas de 1 a 5 para cada cliente comparando eles entre si.")
-
-        # CRIANDO AS NOTAS (SCORES)
-        # Usamos rank(pct=True) para saber em qual % o cliente está (0 a 100%)
-        # Depois multiplicamos por 5 para ter uma nota de 1 a 5
-        
-        # R (Recência): Lógica INVERSA (Quanto menor o dias, MAIOR a nota)
-        df_rfm['R_Score'] = 5 - (df_rfm['Recencia'].rank(pct=True, method='first') * 5).astype(int)
-        
-        # F (Frequência): Lógica DIRETA (Quanto mais, melhor)
-        df_rfm['F_Score'] = (df_rfm['Frequencia'].rank(pct=True, method='first') * 5).astype(int) + 1
-        
-        # M (Monetário): Lógica DIRETA (Quanto mais, melhor)
-        df_rfm['M_Score'] = (df_rfm['Monetario'].rank(pct=True, method='first') * 5).astype(int) + 1
-        
-        # Ajuste fino: O rank pode gerar nota 6 em casos raros de borda, garantimos o teto 5
-        df_rfm['F_Score'] = df_rfm['F_Score'].apply(lambda x: 5 if x > 5 else x)
-        df_rfm['M_Score'] = df_rfm['M_Score'].apply(lambda x: 5 if x > 5 else x)
-
-        # CRIA O "SCORE FINAL" (Ex: "555" é o cliente perfeito)
-        # Somamos R + F + M para ter uma "Média Geral"
-        df_rfm['Score_Geral'] = df_rfm[['R_Score', 'F_Score', 'M_Score']].mean(axis=1)
-        
-        # DEFININDO OS SEGMENTOS (A Regra de Negócio)
-        def definir_segmento(row):
-            r = row['R_Score']
-            f = row['F_Score']
-            m = row['M_Score']
-            media = row['Score_Geral']
-            
-            # Regras Clássicas de RFM
-            if r >= 4 and f >= 4 and m >= 4:
-                return "💎 Campeão"
-            elif r >= 3 and f >= 3:
-                return "😊 Leal"
-            elif r >= 4 and f <= 2:
-                return "🆕 Novo Promissor"
-            elif r <= 2 and f >= 4:
-                return "⚠️ Em Risco"
-            elif r <= 2 and f <= 2:
-                return "💤 Hibernando/Perdido"
-            else:
-                return "🤔 Precisa de Atenção"
-
-        df_rfm['Segmento'] = df_rfm.apply(definir_segmento, axis=1)
-
-        # --- MOSTRAR O RESULTADO ---
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            st.write("### 🕵️ Visão Detalhada")
-            # Mostra as colunas principais ordenadas pelos melhores clientes
-            st.dataframe(
-                df_rfm[['Score_Geral', 'Segmento', 'Recencia', 'Frequencia', 'Monetario']].sort_values('Score_Geral', ascending=False),
-                use_container_width=True
-            )
-            
-        with col2:
-            st.write("### 📊 Distribuição")
-            # Conta quantos clientes tem em cada grupo
-            contagem = df_rfm['Segmento'].value_counts()
-            st.bar_chart(contagem)
-            
-        # Atualiza o session_state com a tabela completa
-        st.session_state['df_rfm_final'] = df_rfm
