@@ -71,7 +71,10 @@ if df is not None:
 
     st.markdown("---")
     st.subheader("⚙️ Mapeamento de Vendas")
+    st.markdown("")
     st.info("Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.")
+
+    st.markdown("")
 
     col1, col2, col3 = st.columns(3)
 
@@ -84,30 +87,97 @@ if df is not None:
     with col3:
         col_valor = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=2)
 
-    # --- CÁLCULO ---
-    if st.button("🚀 Processar e Calcular RFM", type="primary"):
-        with st.spinner("Analisando todas as vendas..."):
-            time.sleep(5)
+    st.markdown("#####")
 
-        last_sale_date = df[col_data].max()
+    try:
 
-        df_rfm = df.groupby(col_id).agg({
-            col_data: lambda x: (last_sale_date - x.max()).days,
-            col_valor: 'sum',
-            col_id: 'count'
-        })
+        # --- CALCULATION ---
+        if st.button("🚀 Processar e Calcular RFM", type="primary"):
+            with st.spinner("Analisando todas as vendas..."):
+                time.sleep(1)
 
-        df_rfm.rename(columns={
-            col_data: 'Recência (Dias)',
-            col_valor: 'Monetário (R$)',
-            col_id: 'Frequência (Vezes)'
-        }, inplace=True)
+            st.divider()
 
-        st.write("### 📊 Resultado da Análise")
-        st.dataframe(df_rfm.reset_index(), hide_index=True, use_container_width=True)
+            last_sale_date = df[col_data].max()
 
+            df_rfm = df.groupby(col_id).agg({
+                col_data: lambda x: (last_sale_date - x.max()).days,
+                col_valor: 'sum',
+                col_id: 'count'
+            })
+
+            df_rfm.rename(columns={
+                col_data: 'Recência (Dias)',
+                col_valor: 'Monetário (R$)',
+                col_id: 'Frequência (Vezes)'
+            }, inplace=True)
+
+            df_rfm["R_Score"] = pd.qcut(df_rfm["Recência (Dias)"].rank(method="first"), q=5, labels=[5, 4, 3, 2, 1], duplicates="drop")
+            df_rfm["M_Score"] = pd.qcut(df_rfm["Monetário (R$)"].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
+            df_rfm["F_Score"] = pd.qcut(df_rfm["Frequência (Vezes)"].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
+            
+            df_rfm["RFM_Score"] = df_rfm["R_Score"].astype(str) + df_rfm["F_Score"].astype(str) + df_rfm["M_Score"].astype(str)
+
+            def rfm_segment(row):
+
+                rfm = row['RFM_Score']
+
+                if rfm[0] in ['5','4'] and rfm[1] in ['5','4'] and rfm[2] in ['5','4']:
+                    return '🏆 Campeões'
+
+                elif rfm[0] in ['5','4'] and rfm[1] in ['1','2']:
+                    return '🌟 Novos & Promissores'
+
+                elif rfm[1] in ['5','4'] and rfm[2] in ['5','4'] and rfm[0] in ['1','2']:
+                    return '⚠️ Em Risco'
+
+                elif rfm[0] in ['1'] and rfm[1] in ['1']:
+                    return '💤 Hibernando'
+
+                else:
+                    return '🔄 Regulares'
+                
+            df_rfm['client_profile'] = df_rfm.apply(rfm_segment, axis=1)
+
+
+            counts = df_rfm['client_profile'].value_counts()
+
+            col1, col2, col3, col4, col5 = st.columns(5)
+            with col1:
+                champions = counts.get('🏆 Campeões', 0)
+                champions_metric = st.metric(label="🏆 Campeões", value=champions,border=True)
+            with col2:
+                promising = counts.get('🌟 Novos & Promissores', 0)
+                promising_metric = st.metric(label="🌟 Novos & Promissores", value=promising,border=True)
+            with col3:
+                risk = counts.get('⚠️ Em Risco', 0)
+                risk_metric = st.metric(label="⚠️ Em Risco", value=risk,border=True)
+            with col4:
+                hibernating = counts.get('💤 Hibernando', 0)
+                hibernating_metric = st.metric(label="💤 Hibernando", value=hibernating,border=True)
+            with col5:
+                regular = counts.get('🔄 Regulares', 0)
+                regular_metric = st.metric(label="🔄 Regulares", value=regular,border=True)
+
+            st.divider()
+
+            graphic_data = df_rfm['client_profile'].value_counts().sort_values(ascending=False)
+            
+            st.bar_chart(graphic_data, use_container_width=True)
+
+            with st.expander("📋 Detalhamento (Base Completa)"):
+                st.dataframe(df_rfm.reset_index(),
+                            hide_index=True,
+                            use_container_width=True,
+                            column_config={
+                            'R_Score':None,
+                            'M_Score':None,
+                            'F_Score':None,
+                            'RFM_Score':None
+                            })
+    except Exception as e:
+        st.error("Por favor, verifique o direcionamento da colunas")
 
 
 else:
-    # Tela de "Venda" quando não tem nada carregado
     st.info("👈 Comece fazendo upload do arquivo ou selecionando o modo Exemplo na barra lateral.")
