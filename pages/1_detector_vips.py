@@ -11,6 +11,84 @@ st.set_page_config(
     layout="wide"
 )
 
+# Remove the default app margin
+st.markdown("""
+    <style>
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+# ----- PAGE DESIGN (DARK MODE MAIN + SIDEBAR TEXTO PRETO) -----
+page_style = """
+<style>
+    /* 1. FUNDO GERAL (Azul Escuro Suave) */
+    [data-testid="stAppViewContainer"] {
+        background-color: #1e293b !important; 
+        background-image: radial-gradient(#475569 1px, transparent 1px) !important; 
+        background-size: 24px 24px !important; 
+    }
+
+    /* 2. BARRA LATERAL (SIDEBAR) - Fundo claro */
+    [data-testid="stSidebar"] {
+        background-color: #f8fafc !important; 
+        box-shadow: 2px 0 30px rgba(0,0,0,0.3) !important;
+        border-right: 1px solid #e5e7eb !important;
+    }
+
+    /* 3. CARTÕES DE VIDRO E EXPANDER */
+    /* Agora aplicamos o vidro diretamente no 'details' do Expander */
+    [data-testid="stVerticalBlockBorderWrapper"] > div, 
+    [data-testid="stExpander"] details {
+        background-color: rgba(51, 65, 85, 0.7) !important; 
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important; 
+        border-radius: 12px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    /* Remove o fundo branco nativo do Streamlit ao abrir ou passar o mouse */
+    [data-testid="stExpander"] summary {
+        background-color: transparent !important;
+    }
+    [data-testid="stExpander"] summary:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important; /* Brilho super suave ao passar o mouse */
+    }
+
+    /* 4. TIPOGRAFIA GERAL (Área Principal Escura) */
+    h1, h2, h3, h4, h5, h6, span, .stMarkdown p, 
+    [data-testid="stExpander"] summary p,
+    [data-testid="stExpander"] summary span {
+        color: #ffffff !important; 
+    }
+    
+    p, li, label, .stText {
+        color: #e2e8f0 !important; 
+    }
+    
+    /* 5. TIPOGRAFIA DA SIDEBAR (Texto Preto Forçado) */
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] .stMarkdown {
+        color: #000000 !important; 
+    }
+
+    /* 6. CABEÇALHO TRANSPARENTE */
+    [data-testid="stHeader"] {
+        background: transparent !important;
+    }
+</style>
+"""
+
+st.markdown(page_style, unsafe_allow_html=True)
+
 # --- DATA EXAMPLE (When user not have one) ---
 @st.cache_data
 def loading_example_dataset():
@@ -32,16 +110,17 @@ Descubra quem são seus **Clientes VIPs**, quem está **Em Risco** de ir embora
 e gere mensagens automáticas de recuperação via WhatsApp.
 """)
 
-st.divider()
+st.markdown("")
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.header("📂 Seus Dados")
-    upload_file = st.file_uploader("Suba sua planilha de vendas (Excel/CSV/TXT)", type=['xls', 'xlsb', 'xlsm', 'csv', 'txt'])
-    
-    st.markdown("---")
-    
-    example_button = st.checkbox("Não tem dados? ***Usar Exemplo***", value=False)
+    with st.container(border=True):
+        st.header("📂 Seus Dados")
+        upload_file = st.file_uploader("Suba sua planilha de vendas (Excel/CSV/TXT)", type=['xls', 'xlsb', 'xlsm', 'csv', 'txt'])
+        
+        st.markdown("---")
+        
+        example_button = st.checkbox("Não tem dados? ***Usar Exemplo***", value=False)
 
 # --- LOADING LOGIC ---
 df = None
@@ -70,12 +149,11 @@ if df is not None:
     st.subheader("📋 Visão Geral dos Dados")
     st.dataframe(df, hide_index=True, use_container_width=True)
 
-    st.markdown("---")
+
     st.subheader("⚙️ Mapeamento de Vendas")
     st.markdown("")
-    st.info("Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.")
+    st.success("👇 Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.")
 
-    st.markdown("")
     st.markdown("")
 
     # Set columns for user choose related of his own dataset
@@ -98,7 +176,6 @@ if df is not None:
             with st.spinner("Analisando todas as vendas..."):
                 time.sleep(1)
 
-            st.divider()
 
             last_sale_date = df[col_date].max()
 
@@ -168,35 +245,48 @@ if df is not None:
                 counts = df_rfm['Perfil_cliente'].value_counts()
                 total_clientes = counts.sum()
 
-                # Create cards panel, transforming dataframe into card percentage
-                df_kpis = pd.DataFrame({
-                    "Perfil": ["Total_clientes", "🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
-                    "Quantidade": [
-                        total_clientes,
-                        counts.get('🏆 Campeões', 0)/total_clientes,
-                        counts.get('🌟 Novos & Promissores', 0)/total_clientes,
-                        counts.get('⚠️ Em Risco', 0)/total_clientes,
-                        counts.get('💤 Hibernando', 0)/total_clientes,
-                        counts.get('🔄 Regulares', 0)/total_clientes
-                    ]
-                })
-                # Set the cards panel
-                st.dataframe(
-                    df_kpis.set_index("Perfil").T,
-                    use_container_width=True,
-                    column_config={
-                        'Total_clientes': st.column_config.ProgressColumn(format="%d", min_value=0, max_value=int(total_clientes), color="grey"),
-                        "🏆 Campeões": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="green"),
-                        "🌟 Novos & Promissores": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="orange"),
-                        "⚠️ Em Risco": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="auto"),
-                        "💤 Hibernando": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="grey"),
-                        "🔄 Regulares": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="blue")
-                    }
-                )
+                col_total, col_barras = st.columns([1.5, 4])
+
+                with col_total:
+                    st.markdown(f"""
+                    <div style="text-align: center; padding: 12px 10px; background-color: rgba(51, 65, 85, 0.7); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); height: 100%;">
+                        <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 0px;">Total de Clientes</p>
+                        <p style="font-size: 52px; font-weight: bold; color: #ffffff; margin-top: -10px; margin-bottom: 0px;">{total_clientes}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+                with col_barras:
+                    df_kpis_barras = pd.DataFrame({
+                        "Perfil": ["🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
+                        "Quantidade": [
+                            counts.get('🏆 Campeões', 0)/total_clientes,
+                            counts.get('🌟 Novos & Promissores', 0)/total_clientes,
+                            counts.get('⚠️ Em Risco', 0)/total_clientes,
+                            counts.get('💤 Hibernando', 0)/total_clientes,
+                            counts.get('🔄 Regulares', 0)/total_clientes
+                        ]
+                    })
+
+                    st.markdown("")
+                    st.markdown("")
+
+                    st.dataframe(
+                        df_kpis_barras.set_index("Perfil").T,
+                        hide_index=True,
+                        use_container_width=True,
+                        column_config={
+                            "🏆 Campeões": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="green"),
+                            "🌟 Novos & Promissores": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="orange"),
+                            "⚠️ Em Risco": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="red"),
+                            "💤 Hibernando": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="grey"),
+                            "🔄 Regulares": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="blue")
+                        }
+                    )
 
                 clientes_por_perfil = df_rfm.groupby('Perfil_cliente').apply(lambda x: list(x.index)).to_dict()
 
                 # Create list panel, transforming dataframe into list of profile clients
+                st.markdown("")
                 df_kpis_list = pd.DataFrame({
                     "Perfil": ["🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
                     "Lista de Clientes": [
@@ -207,6 +297,7 @@ if df is not None:
                         clientes_por_perfil.get('🔄 Regulares', [])
                     ]
                 })
+
                 # Set the list panel
                 st.dataframe(
                     df_kpis_list,
@@ -260,6 +351,8 @@ if df is not None:
                                 'RFM_Score': None,
                                 'Mensagem': None,
                                 'Prioridade': None,
+                                'Monetário (R$)': st.column_config.NumberColumn(
+                                    format="R$ %.2f"),
                                 # --- A MÁGICA AQUI ---
                                 'Link_WhatsApp': st.column_config.LinkColumn(
                                     label="💬 Ação",

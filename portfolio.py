@@ -442,28 +442,19 @@ with tab_portfolio:
         col_imagem, col_texto = st.columns([1, 2])
         
         with col_imagem:
-            # st.image("caminho/para/seu_gif_rfm.gif", use_container_width=True)
-            st.info("Aqui entra o GIF do seu App funcionando")
+            st.video(
+            'Utilities/Video Project 2.mp4',
+            format="video/mp4", 
+            start_time=0, 
+            autoplay=True,
+            muted=True,
+            loop=True
+        )
             
         with col_texto:
             st.subheader("💎 Detector de Oportunidades (CRM Automático)")
             st.write("**O que é:** Um sistema de segmentação RFM que transforma extratos de vendas em perfis de clientes (VIPs, Em Risco, etc).")
             st.write("**Tecnologias:** Python, Pandas, Streamlit, Integração com WhatsApp Web.")
             
-            st.page_link("pages/1_detector_vips.py", label="Testar Aplicativo", icon="▶️")
-            st.link_button("💻 Ver Código no GitHub", "https://github.com/seu-link")
-
-    # --- CARD PROJECT 2 ---
-    with st.container(border=True):
-        col_imagem, col_texto = st.columns([1, 2])
-        
-        with col_imagem:
-            # st.image("caminho/para/gif_focusdata.gif", use_container_width=True)
-            st.info("Aqui entra a imagem do seu outro projeto")
-            
-        with col_texto:
-            st.subheader("📊 FocusData (Rastreador de Performance)")
-            st.write("**O que é:** Aplicação conectada ao Google Sheets para acompanhamento de métricas de produtividade em tempo real.")
-            st.write("**Tecnologias:** Python, Streamlit, Google Sheets API.")
-            
-            # st.page_link("pages/2_focusdata.py", label="🚀 Testar Aplicativo", icon="▶️")
+            with st.container(border=True):
+                st.page_link("pages/1_detector_vips.py", label="Testar Aplicativo", icon="▶️")
