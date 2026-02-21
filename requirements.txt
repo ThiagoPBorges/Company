@@ -1,3 +1,8 @@
 streamlit
-selenium
+pandas
 webdriver-manager
+openpyxl
+time
+urllib
+io
+=

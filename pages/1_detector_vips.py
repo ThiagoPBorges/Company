@@ -2,17 +2,18 @@ import streamlit as st
 import pandas as pd
 import time
 import urllib.parse
+import io
 
-# --- CONFIGURAÇÃO DA PÁGINA ---
+# --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="Detector de Clientes VIP",
     page_icon="💎",
     layout="wide"
 )
 
-# --- FUNÇÕES DE CARREGAMENTO (ETL) ---
+# --- DATA EXAMPLE (When user not have one) ---
 @st.cache_data
-def carregar_dados_exemplo():
+def loading_example_dataset():
     dados = {
     'ID_Cliente': [113, 116, 106, 110, 108, 114, 105, 118, 111, 105, 103, 119, 120, 103, 103, 104, 102, 109, 106, 107, 118, 119, 114, 115, 104, 117, 112, 108, 113, 110, 106, 111, 110, 111, 112, 105, 119, 109, 108, 107, 111, 115, 102, 117, 111, 104, 115, 117, 112, 102, 116, 104, 112, 111, 120, 119, 116, 101, 102, 107, 116, 119, 105, 112, 106, 112, 104, 118, 110, 114, 116, 101, 103, 106, 106, 107, 104, 118, 117, 103, 118, 107, 115, 101, 101, 104, 114, 105, 102, 110, 110, 107, 116, 105, 106, 117, 104, 115, 119, 104],
     'Nome': ['TransNacional', 'Limpeza & Service', 'Inova Marketing', 'Indústria MetalSul', 'FarmaMed Distribuição', 'Segurança Prime', 'Logística Veloz', 'Engenharia Norte', 'Comércio Global', 'Logística Veloz', 'Grupo Horizonte', 'Importadora Águia', 'Rede Supermix', 'Grupo Horizonte', 'Grupo Horizonte', 'Consultoria Exata', 'Distribuidora Aliança', 'Agro Verde', 'Inova Marketing', 'Construtora Base', 'Engenharia Norte', 'Importadora Águia', 'Segurança Prime', 'Auto Peças Rota', 'Consultoria Exata', 'Advocacia Silva', 'Soft Systems', 'FarmaMed Distribuição', 'TransNacional', 'Indústria MetalSul', 'Inova Marketing', 'Comércio Global', 'Indústria MetalSul', 'Comércio Global', 'Soft Systems', 'Logística Veloz', 'Importadora Águia', 'Agro Verde', 'FarmaMed Distribuição', 'Construtora Base', 'Comércio Global', 'Auto Peças Rota', 'Distribuidora Aliança', 'Advocacia Silva', 'Comércio Global', 'Consultoria Exata', 'Auto Peças Rota', 'Advocacia Silva', 'Soft Systems', 'Distribuidora Aliança', 'Limpeza & Service', 'Consultoria Exata', 'Soft Systems', 'Comércio Global', 'Rede Supermix', 'Importadora Águia', 'Limpeza & Service', 'TechSolutions Ltda', 'Distribuidora Aliança', 'Construtora Base', 'Limpeza & Service', 'Importadora Águia', 'Logística Veloz', 'Soft Systems', 'Inova Marketing', 'Soft Systems', 'Consultoria Exata', 'Engenharia Norte', 'Indústria MetalSul', 'Segurança Prime', 'Limpeza & Service', 'TechSolutions Ltda', 'Grupo Horizonte', 'Inova Marketing', 'Inova Marketing', 'Construtora Base', 'Consultoria Exata', 'Engenharia Norte', 'Advocacia Silva', 'Grupo Horizonte', 'Engenharia Norte', 'Construtora Base', 'Auto Peças Rota', 'TechSolutions Ltda', 'TechSolutions Ltda', 'Consultoria Exata', 'Segurança Prime', 'Logística Veloz', 'Distribuidora Aliança', 'Indústria MetalSul', 'Indústria MetalSul', 'Construtora Base', 'Limpeza & Service', 'Logística Veloz', 'Inova Marketing', 'Advocacia Silva', 'Consultoria Exata', 'Auto Peças Rota', 'Importadora Águia', 'Consultoria Exata'],
@@ -24,7 +25,7 @@ def carregar_dados_exemplo():
 }
     return pd.DataFrame(dados)
 
-# --- INTERFACE PRINCIPAL ---
+# --- MAIN INTERFACE ---
 st.title("💎 Detector de Oportunidades (RFM)")
 st.markdown("""
 Descubra quem são seus **Clientes VIPs**, quem está **Em Risco** de ir embora 
@@ -33,42 +34,41 @@ e gere mensagens automáticas de recuperação via WhatsApp.
 
 st.divider()
 
-# --- SIDEBAR (CONTROLES) ---
+# --- SIDEBAR ---
 with st.sidebar:
     st.header("📂 Seus Dados")
-    arquivo_upload = st.file_uploader("Suba sua planilha de vendas (Excel/CSV/TXT)", type=['xls', 'xlsb', 'xlsm', 'csv', 'txt'])
+    upload_file = st.file_uploader("Suba sua planilha de vendas (Excel/CSV/TXT)", type=['xls', 'xlsb', 'xlsm', 'csv', 'txt'])
     
     st.markdown("---")
     
-    usar_exemplo = st.checkbox("Não tem dados? Usar Exemplo", value=False)
+    example_button = st.checkbox("Não tem dados? ***Usar Exemplo***", value=False)
 
-# --- LÓGICA DE CARREGAMENTO ---
+# --- LOADING LOGIC ---
 df = None
 
-if arquivo_upload:
+# If user input a file, will be analyze that, if not will use fiction dataset
+if upload_file:
     try:
-        if arquivo_upload.name.endswith('.csv'):
-            df = pd.read_csv(arquivo_upload)
-        elif arquivo_upload.name.endswith('.xlsx') or arquivo_upload.name.endswith('.xls') or arquivo_upload.name.endswith('.xlsb') or arquivo_upload.name.endswith('.xlsm'):
-            df = pd.read_excel(arquivo_upload)
-        elif arquivo_upload.name.endswith('.txt'):
-            df = pd.read_csv(arquivo_upload, sep='\t')
+        if upload_file.name.endswith('.csv'):
+            df = pd.read_csv(upload_file)
+        elif upload_file.name.endswith('.xlsx') or upload_file.name.endswith('.xls') or upload_file.name.endswith('.xlsb') or upload_file.name.endswith('.xlsm'):
+            df = pd.read_excel(upload_file)
+        elif upload_file.name.endswith('.txt'):
+            df = pd.read_csv(upload_file, sep='\t')
         else:
             st.error("Formato de arquivo não suportado.")
         st.sidebar.success("Dados carregados com sucesso!")
     except Exception as e:
         st.error(f"Erro ao ler arquivo: {e}")
 
-elif usar_exemplo:
-    df = carregar_dados_exemplo()
+elif example_button:
+    df = loading_example_dataset()
     st.sidebar.info("Utilizando dados fictícios de demonstração.")
 
-# --- DASHBOARD ---
+# --- DASHBOARD (Before calculation) ---
 if df is not None:
     st.subheader("📋 Visão Geral dos Dados")
     st.dataframe(df, hide_index=True, use_container_width=True)
-    
-    # AQUI ENTRARÁ O CÁLCULO RFM E A IA DEPOIS
 
     st.markdown("---")
     st.subheader("⚙️ Mapeamento de Vendas")
@@ -78,48 +78,60 @@ if df is not None:
     st.markdown("")
     st.markdown("")
 
+    # Set columns for user choose related of his own dataset
     col1, col2, col3 = st.columns(3)
-
     with col1:
         col_id = st.selectbox("Coluna de ID/NOME do Cliente", df.columns, index=1)
         
     with col2:
-        col_data = st.selectbox("Coluna da DATA da Venda", df.columns, index=2)
+        col_date = st.selectbox("Coluna da DATA da Venda", df.columns, index=2)
         
     with col3:
-        col_valor = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=3)
+        col_value = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=3)
 
-    st.markdown("#####")
+    st.markdown("######")
 
     try:
 
-        # --- CALCULATION ---
+        # --- DASHBOARD (After calculation) ---
         if st.button("🚀 Processar e Calcular RFM", type="primary"):
             with st.spinner("Analisando todas as vendas..."):
-                time.sleep(7)
+                time.sleep(1)
 
             st.divider()
 
-            last_sale_date = df[col_data].max()
+            last_sale_date = df[col_date].max()
 
+            # Dataframe grouped per col_id
             df_rfm = df.groupby(col_id).agg({
-                col_data: lambda x: (last_sale_date - x.max()).days,
-                col_valor: 'sum',
+                col_date: lambda x: (last_sale_date - x.max()).days,
+                col_value: 'sum',
                 col_id: 'count'
             })
 
             df_rfm.rename(columns={
-                col_data: 'Recência (Dias)',
-                col_valor: 'Monetário (R$)',
+                col_date: 'Recência (Dias)',
+                col_value: 'Monetário (R$)',
                 col_id: 'Frequência (Vezes)'
             }, inplace=True)
+
+            # RMF rule : 
+            ## Divide clients for 5 groups (quintiles), assigning notes 1 to 5
+
+            # 1. Recency (R_Score): Inverted order [5, 4, 3, 2, 1].
+            # - Less time (days) since the last purchase, the higher the better.
+            # 2. Frequency (F_Score): Ascending order [1, 2, 3, 4, 5].
+            # - More purchases, the higher the better.
+            # 3. Monetary (M_Score): Ascending order [1, 2, 3, 4, 5].
+            # - More money spent, the higher the better.
 
             df_rfm["R_Score"] = pd.qcut(df_rfm["Recência (Dias)"].rank(method="first"), q=5, labels=[5, 4, 3, 2, 1], duplicates="drop")
             df_rfm["M_Score"] = pd.qcut(df_rfm["Monetário (R$)"].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
             df_rfm["F_Score"] = pd.qcut(df_rfm["Frequência (Vezes)"].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
-            
+            # Putting the numbers together to have a consolidated rule
             df_rfm["RFM_Score"] = df_rfm["R_Score"].astype(str) + df_rfm["F_Score"].astype(str) + df_rfm["M_Score"].astype(str)
 
+            # Naming the groups of RFM
             def rfm_segment(row):
 
                 rfm = row['RFM_Score']
@@ -141,7 +153,7 @@ if df is not None:
                 
             df_rfm[['Perfil_cliente', 'Prioridade']] = df_rfm.apply(rfm_segment, axis=1, result_type='expand')
 
-            
+            # --- Results panel ---
             with st.container(border=True):
                 st.markdown(
                     """
@@ -156,6 +168,7 @@ if df is not None:
                 counts = df_rfm['Perfil_cliente'].value_counts()
                 total_clientes = counts.sum()
 
+                # Create cards panel, transforming dataframe into card percentage
                 df_kpis = pd.DataFrame({
                     "Perfil": ["Total_clientes", "🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
                     "Quantidade": [
@@ -167,7 +180,7 @@ if df is not None:
                         counts.get('🔄 Regulares', 0)/total_clientes
                     ]
                 })
-
+                # Set the cards panel
                 st.dataframe(
                     df_kpis.set_index("Perfil").T,
                     use_container_width=True,
@@ -183,7 +196,7 @@ if df is not None:
 
                 clientes_por_perfil = df_rfm.groupby('Perfil_cliente').apply(lambda x: list(x.index)).to_dict()
 
-                # 2. Criamos a tabela vertical completa
+                # Create list panel, transforming dataframe into list of profile clients
                 df_kpis_list = pd.DataFrame({
                     "Perfil": ["🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
                     "Lista de Clientes": [
@@ -194,7 +207,7 @@ if df is not None:
                         clientes_por_perfil.get('🔄 Regulares', [])
                     ]
                 })
-
+                # Set the list panel
                 st.dataframe(
                     df_kpis_list,
                     hide_index=True,
@@ -206,7 +219,7 @@ if df is not None:
                     }
                 )
 
-    
+            # Function for create message on whatsapp, depends about profile client
             def whatsapp_message(row):
 
                 client = row.name
@@ -230,11 +243,12 @@ if df is not None:
                 
             df_rfm['Mensagem'] = df_rfm.apply(whatsapp_message, axis=1)
 
-            # Transforma o texto em um link clicável do WhatsApp
+            # Transform message on clickable link
             df_rfm['Link_WhatsApp'] = df_rfm['Mensagem'].apply(
                 lambda x: f"https://api.whatsapp.com/send?text={urllib.parse.quote(x)}"
             )
 
+            # RAW BASE AFTER CALCULATION
             with st.expander("📋 Detalhamento (Base Completa)"):
                 st.dataframe(df_rfm.reset_index().sort_values(by='Prioridade'),
                             hide_index=True,
@@ -254,32 +268,33 @@ if df is not None:
                             })
                 
     
-    # --- FUNÇÃO DE DOWNLOAD ---
+    # --- DOWNLOAD FUNCTION ---
             st.markdown("### 📥 Exportar Resultados")
             
-            # Preparamos o DataFrame para exportação (resetando o index para o nome aparecer como coluna)
             df_export = df_rfm.reset_index().sort_values(by='Prioridade')
             
-            # Removemos as colunas de notas que o usuário final não precisa ver
-            colunas_para_remover = ['R_Score', 'M_Score', 'F_Score', 'RFM_Score', 'Prioridade']
-            df_export = df_export.drop(columns=colunas_para_remover, errors='ignore')
+            columns_remove = ['R_Score', 'M_Score', 'F_Score', 'RFM_Score', 'Prioridade','Link_WhatsApp','Mensagem']
 
-            # Convertendo para CSV (O .encode('utf-8') garante que acentos fiquem corretos)
-            csv = df_export.to_csv(index=False).encode('utf-8')
+            df_export = df_export.drop(columns=columns_remove, errors='ignore')
 
+            # Create space of memory
+            memory = io.BytesIO()
+            
+            # Put the excel file on this space
+            with pd.ExcelWriter(memory, engine='openpyxl') as writer:
+                df_export.to_excel(writer, index=False, sheet_name='Clientes_RFM')
+            
+            # The download button uses that file to export
             st.download_button(
-                label="📥 Baixar Base Completa (CSV)",
-                data=csv,
-                file_name='base_clientes_classificada.csv',
-                mime='text/csv',
+                label="📥 Baixar Base Completa (Excel)",
+                data=memory.getvalue(),
+                file_name='base_clientes_classificada.xlsx',
+                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', # Universal code for .xlsx
                 type="primary"
             )
 
-
-
     except Exception as e:
         st.error("Por favor, verifique o direcionamento da colunas")
-
 
 else:
     st.info("👈 Comece fazendo upload do arquivo ou selecionando o modo Exemplo na barra lateral.")

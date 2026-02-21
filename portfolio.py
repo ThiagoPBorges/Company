@@ -434,25 +434,36 @@ with tab_servicos:
 
 with tab_portfolio:
     st.write("")
-    st.markdown("### 🧩 Projetos em Destaque")
-    st.write("Interaja com as ferramentas reais que desenvolvi para resolver problemas de negócio.")
-    st.markdown("---")
+    st.header("🧩 Projetos em Destaque")
+    st.markdown("Aqui estão algumas soluções de automação e análise de dados que desenvolvi.")
 
-    # --- PROJETO 1: VIPS DETECTOR (RFM) ---
+    # --- CARD PROJECT 1 ---
     with st.container(border=True):
-        col_img, col_info = st.columns([1, 2])
+        col_imagem, col_texto = st.columns([1, 2])
         
-        with col_img:
-            st.image("Utilities/Detector de VIPs.png", use_container_width=True)
+        with col_imagem:
+            # st.image("caminho/para/seu_gif_rfm.gif", use_container_width=True)
+            st.info("Aqui entra o GIF do seu App funcionando")
+            
+        with col_texto:
+            st.subheader("💎 Detector de Oportunidades (CRM Automático)")
+            st.write("**O que é:** Um sistema de segmentação RFM que transforma extratos de vendas em perfis de clientes (VIPs, Em Risco, etc).")
+            st.write("**Tecnologias:** Python, Pandas, Streamlit, Integração com WhatsApp Web.")
+            
+            st.page_link("pages/1_detector_vips.py", label="Testar Aplicativo", icon="▶️")
+            st.link_button("💻 Ver Código no GitHub", "https://github.com/seu-link")
+
+    # --- CARD PROJECT 2 ---
+    with st.container(border=True):
+        col_imagem, col_texto = st.columns([1, 2])
         
-        with col_info:
-            st.subheader("Detector de Oportunidades (RFM)")
-            st.markdown("""
-            **Foco:** Marketing e Vendas | **Tecnologia:** Python + Pandas
+        with col_imagem:
+            # st.image("caminho/para/gif_focusdata.gif", use_container_width=True)
+            st.info("Aqui entra a imagem do seu outro projeto")
             
-            Ferramenta que segmenta sua base de clientes automaticamente.
-            Descubra quem são seus **VIPs**, quem está **Em Risco** e gere textos de recuperação para WhatsApp com IA.
-            """)
+        with col_texto:
+            st.subheader("📊 FocusData (Rastreador de Performance)")
+            st.write("**O que é:** Aplicação conectada ao Google Sheets para acompanhamento de métricas de produtividade em tempo real.")
+            st.write("**Tecnologias:** Python, Streamlit, Google Sheets API.")
             
-            # O BOTÃO PARA A PÁGINA
-            st.page_link("pages/1_detector_vips.py", label="Testar Ferramenta Agora", icon="🚀")
+            # st.page_link("pages/2_focusdata.py", label="🚀 Testar Aplicativo", icon="▶️")
