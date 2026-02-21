@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import time
+import urllib.parse
 
 # --- CONFIGURAÇÃO DA PÁGINA ---
 st.set_page_config(
@@ -75,17 +76,18 @@ if df is not None:
     st.info("Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.")
 
     st.markdown("")
+    st.markdown("")
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        col_id = st.selectbox("Coluna de ID/NOME do Cliente", df.columns, index=0)
+        col_id = st.selectbox("Coluna de ID/NOME do Cliente", df.columns, index=1)
         
     with col2:
-        col_data = st.selectbox("Coluna da DATA da Venda", df.columns, index=1)
+        col_data = st.selectbox("Coluna da DATA da Venda", df.columns, index=2)
         
     with col3:
-        col_valor = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=2)
+        col_valor = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=3)
 
     st.markdown("#####")
 
@@ -94,7 +96,7 @@ if df is not None:
         # --- CALCULATION ---
         if st.button("🚀 Processar e Calcular RFM", type="primary"):
             with st.spinner("Analisando todas as vendas..."):
-                time.sleep(1)
+                time.sleep(7)
 
             st.divider()
 
@@ -123,58 +125,158 @@ if df is not None:
                 rfm = row['RFM_Score']
 
                 if rfm[0] in ['5','4'] and rfm[1] in ['5','4'] and rfm[2] in ['5','4']:
-                    return '🏆 Campeões'
+                    return '🏆 Campeões', 1
 
                 elif rfm[0] in ['5','4'] and rfm[1] in ['1','2']:
-                    return '🌟 Novos & Promissores'
+                    return '🌟 Novos & Promissores', 2
 
                 elif rfm[1] in ['5','4'] and rfm[2] in ['5','4'] and rfm[0] in ['1','2']:
-                    return '⚠️ Em Risco'
+                    return '⚠️ Em Risco' , 3
 
                 elif rfm[0] in ['1'] and rfm[1] in ['1']:
-                    return '💤 Hibernando'
+                    return '💤 Hibernando', 4
 
                 else:
-                    return '🔄 Regulares'
+                    return '🔄 Regulares', 5
                 
-            df_rfm['client_profile'] = df_rfm.apply(rfm_segment, axis=1)
+            df_rfm[['Perfil_cliente', 'Prioridade']] = df_rfm.apply(rfm_segment, axis=1, result_type='expand')
 
-
-            counts = df_rfm['client_profile'].value_counts()
-
-            col1, col2, col3, col4, col5 = st.columns(5)
-            with col1:
-                champions = counts.get('🏆 Campeões', 0)
-                champions_metric = st.metric(label="🏆 Campeões", value=champions,border=True)
-            with col2:
-                promising = counts.get('🌟 Novos & Promissores', 0)
-                promising_metric = st.metric(label="🌟 Novos & Promissores", value=promising,border=True)
-            with col3:
-                risk = counts.get('⚠️ Em Risco', 0)
-                risk_metric = st.metric(label="⚠️ Em Risco", value=risk,border=True)
-            with col4:
-                hibernating = counts.get('💤 Hibernando', 0)
-                hibernating_metric = st.metric(label="💤 Hibernando", value=hibernating,border=True)
-            with col5:
-                regular = counts.get('🔄 Regulares', 0)
-                regular_metric = st.metric(label="🔄 Regulares", value=regular,border=True)
-
-            st.divider()
-
-            graphic_data = df_rfm['client_profile'].value_counts().sort_values(ascending=False)
             
-            st.bar_chart(graphic_data, use_container_width=True)
+            with st.container(border=True):
+                st.markdown(
+                    """
+                    <h2 style='text-align: center; background-color: #1E3A8A; color: #FFFFFF; padding: 10px; border-radius: 10px;'>
+                        ANÁLISE DE PERFIL DE CLIENTES
+                    </h2>
+                    """, 
+                    unsafe_allow_html=True
+                )
+                st.markdown("")
+
+                counts = df_rfm['Perfil_cliente'].value_counts()
+                total_clientes = counts.sum()
+
+                df_kpis = pd.DataFrame({
+                    "Perfil": ["Total_clientes", "🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
+                    "Quantidade": [
+                        total_clientes,
+                        counts.get('🏆 Campeões', 0)/total_clientes,
+                        counts.get('🌟 Novos & Promissores', 0)/total_clientes,
+                        counts.get('⚠️ Em Risco', 0)/total_clientes,
+                        counts.get('💤 Hibernando', 0)/total_clientes,
+                        counts.get('🔄 Regulares', 0)/total_clientes
+                    ]
+                })
+
+                st.dataframe(
+                    df_kpis.set_index("Perfil").T,
+                    use_container_width=True,
+                    column_config={
+                        'Total_clientes': st.column_config.ProgressColumn(format="%d", min_value=0, max_value=int(total_clientes), color="grey"),
+                        "🏆 Campeões": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="green"),
+                        "🌟 Novos & Promissores": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="orange"),
+                        "⚠️ Em Risco": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="auto"),
+                        "💤 Hibernando": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="grey"),
+                        "🔄 Regulares": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="blue")
+                    }
+                )
+
+                clientes_por_perfil = df_rfm.groupby('Perfil_cliente').apply(lambda x: list(x.index)).to_dict()
+
+                # 2. Criamos a tabela vertical completa
+                df_kpis_list = pd.DataFrame({
+                    "Perfil": ["🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
+                    "Lista de Clientes": [
+                        clientes_por_perfil.get('🏆 Campeões', []),
+                        clientes_por_perfil.get('🌟 Novos & Promissores', []),
+                        clientes_por_perfil.get('⚠️ Em Risco', []),
+                        clientes_por_perfil.get('💤 Hibernando', []),
+                        clientes_por_perfil.get('🔄 Regulares', [])
+                    ]
+                })
+
+                st.dataframe(
+                    df_kpis_list,
+                    hide_index=True,
+                    use_container_width=True,
+                    column_config={
+                        "Lista de Clientes": st.column_config.ListColumn(
+                            "Clientes no Perfil"
+                        )
+                    }
+                )
+
+    
+            def whatsapp_message(row):
+
+                client = row.name
+                profile = row['Perfil_cliente']
+
+                if profile == '🏆 Campeões':
+                    return f"Olá {client}! Tudo bem? Vimos que você é um dos nossos melhores clientes. Como agradecimento, geramos um cupom de 15% OFF para sua próxima compra! 🎁"
+                
+                elif profile == '⚠️ Em Risco':
+                    return f"Olá {client}! Faz um tempinho que não nos vemos. Sentimos sua falta! Chegaram novidades por aqui, quer dar uma olhada? 👀"
+                
+                elif profile == '🌟 Novos & Promissores':
+                    return f"Olá {client}! Foi muito bom ter você com a gente recentemente. Preparamos algumas recomendações especiais que são a sua cara. Vem ver! ✨"
+                
+                elif profile == '💤 Hibernando':
+                    return f"Oi {client}, sumido! Saudade de ver você por aqui. Para celebrar sua volta, liberamos um desconto exclusivo de 20% em todo o site. Aproveite! 🚀"
+
+                else:
+                    # Commom message for regular clients
+                    return f"Olá {client}, confira nossas ofertas da semana!"
+                
+            df_rfm['Mensagem'] = df_rfm.apply(whatsapp_message, axis=1)
+
+            # Transforma o texto em um link clicável do WhatsApp
+            df_rfm['Link_WhatsApp'] = df_rfm['Mensagem'].apply(
+                lambda x: f"https://api.whatsapp.com/send?text={urllib.parse.quote(x)}"
+            )
 
             with st.expander("📋 Detalhamento (Base Completa)"):
-                st.dataframe(df_rfm.reset_index(),
+                st.dataframe(df_rfm.reset_index().sort_values(by='Prioridade'),
                             hide_index=True,
                             use_container_width=True,
                             column_config={
-                            'R_Score':None,
-                            'M_Score':None,
-                            'F_Score':None,
-                            'RFM_Score':None
+                                'R_Score': None,
+                                'M_Score': None,
+                                'F_Score': None,
+                                'RFM_Score': None,
+                                'Mensagem': None,
+                                'Prioridade': None,
+                                # --- A MÁGICA AQUI ---
+                                'Link_WhatsApp': st.column_config.LinkColumn(
+                                    label="💬 Ação",
+                                    display_text="📲 Enviar WhatsApp"
+                                )
                             })
+                
+    
+    # --- FUNÇÃO DE DOWNLOAD ---
+            st.markdown("### 📥 Exportar Resultados")
+            
+            # Preparamos o DataFrame para exportação (resetando o index para o nome aparecer como coluna)
+            df_export = df_rfm.reset_index().sort_values(by='Prioridade')
+            
+            # Removemos as colunas de notas que o usuário final não precisa ver
+            colunas_para_remover = ['R_Score', 'M_Score', 'F_Score', 'RFM_Score', 'Prioridade']
+            df_export = df_export.drop(columns=colunas_para_remover, errors='ignore')
+
+            # Convertendo para CSV (O .encode('utf-8') garante que acentos fiquem corretos)
+            csv = df_export.to_csv(index=False).encode('utf-8')
+
+            st.download_button(
+                label="📥 Baixar Base Completa (CSV)",
+                data=csv,
+                file_name='base_clientes_classificada.csv',
+                mime='text/csv',
+                type="primary"
+            )
+
+
+
     except Exception as e:
         st.error("Por favor, verifique o direcionamento da colunas")
 
