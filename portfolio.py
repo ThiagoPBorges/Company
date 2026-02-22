@@ -72,36 +72,67 @@ page_style = """
 
 st.markdown(page_style, unsafe_allow_html=True)
 
+# Update memory depends where user click
+def idioma(pt,en):
+    if st.session_state.get('idioma', 'PT') == 'PT':
+        return pt
+    else:
+        return en
+
 # ----- SIDEBAR -----
 with st.sidebar:
-    st.write("")
-    st.write(f"**Olá, empresário(a) !**")
-    st.caption("✅ Estou disponível para novos projetos")
     
+    # Create button to alternate EN-PT
+    escolha = st.radio(
+        "Idioma / Language", 
+        ['PT - 🇧🇷', 'EN - 🇺🇸'], 
+        horizontal=True,
+        label_visibility="collapsed"
+    )
+    # Save on memory EN-PT
+    if 'PT' in escolha:
+        st.session_state['idioma'] = 'PT'
+    else:
+        st.session_state['idioma'] = 'EN'
+   
+    st.markdown("")
+    st.markdown("")
+    st.markdown("")
+
+
+    st.write(
+        idioma("**Olá, empresário(a) !**",
+               "**Hello, business owner !**"))
+    st.caption(
+        idioma("✅ Estou disponível para novos projetos",
+        "✅ I'm available for new projects"))
+        
     st.divider()
     
     # Login Area
-    st.header("🔒 Área do Cliente")
-    st.badge("Acesse seu projeto abaixo.", color="grey")
+    st.header(idioma("🔒 Área do Cliente","🔒 Client Area"))
+    st.badge(idioma("Acesse seu projeto abaixo.","Access your project below.")
+             , color="grey")
 
     if "nome_usuario" not in st.session_state:
         st.session_state["nome_usuario"] = "Visitante"
     
     if st.session_state["nome_usuario"] == "Visitante":
-        btn_user = st.text_input("Usuário")
-        btn_password = st.text_input("Senha", type="password")
+        btn_user = st.text_input(idioma("Usuário", "Username"))
+        btn_password = st.text_input(idioma("Senha", "Password"), type="password")
 
-        if st.button("Entrar no Sistema"):
+        if st.button(idioma("Entrar no Sistema", "Login")):
 
             users = st.secrets["usuarios"]
     
             if btn_user in users and users[btn_user] == btn_password:
                 st.session_state["nome_usuario"] = btn_user
-                st.success(f"Bem-vindo, {btn_user.capitalize()}!")
+                
+                st.success(idioma(f"Bem-vindo, {btn_user.capitalize()}!", f"Welcome, {btn_user.capitalize()}!"))
                 st.balloons()
             else:
-                st.error("Acesso restrito a clientes ativos.")
-                st.caption("Quer ter seu próprio acesso? Fale comigo.")
+                st.error(idioma("Acesso restrito a clientes ativos.", "Access restricted to active clients."))
+                st.caption(idioma("Quer ter seu próprio acesso? Fale comigo.", "Want your own access? Contact me."))
 
     st.divider()
 
@@ -110,7 +141,11 @@ with st.sidebar:
     col_whats, col_linked = st.columns(2)
 
     num_whatsapp = "5519992814477"
-    message_hello = "Olá Thiago! Vi seu portfólio de Dados e Automação e gostaria de discutir uma oportunidade/projeto."
+    message_hello = idioma(
+        "Olá Thiago! Vi seu portfólio de Dados e Automação e gostaria de discutir uma oportunidade/projeto.",
+        "Hello Thiago! I saw your portfolio of Data and Automation and would like to discuss an opportunity/project."
+    )
+
 
     with col_whats:
             # Button Whatsapp
@@ -161,15 +196,6 @@ with st.sidebar:
                 </button>
             </a>
             """, unsafe_allow_html=True)
-    
-    st.divider()
-
-    # Feedback area
-    st.text("Deixe sua opinião/sugestão")
-    sentiment_mapping = ["1", "2", "3", "4", "5"]
-    selected = st.feedback("stars")
-    if selected is not None:
-        st.markdown(f"Você selecionou {sentiment_mapping[selected]} estrela(s).")
 
 ## ----- SELF INTRODUCTION -----
 
@@ -178,24 +204,34 @@ with st.container(border=True):
     whitespace, intro, whitespace2, photo = st.columns([0.01,9,1,3.4])
 
     with intro:
-            st.title("Transformando dados em eficiência")
-            
-            st.markdown("""
-            </h1>
+            st.title(idioma("Transformando dados em eficiência", "Transforming data into efficiency"))
+
+            st.markdown(f"""</h1>
             <p style='color: #666; font-size: 18px; margin-top: 5px;'>
-                🎓 Administração | 💻 Análise de Dados | 🧾 Finanças
+                {idioma('🎓 Administração | 💻 Análise de Dados | 🧾 Finanças', '🎓 Adminstration | 💻 Data Analysis | 🧾 Finance')}
             </p>
-            """, unsafe_allow_html=True)
+            """,
+            unsafe_allow_html=True)
 
             st.write("")
             
-            st.markdown("""
+            main_txt = idioma(
+                "Não sou apenas um Analista de Dados, sou um Administrador com o domínio da tecnologia.",
+                "I'm not just a Data Analyst, I'm a Business Administrator with mastery of technology."
+            )
+
+            comp_txt = idioma(
+                "Combino a visão estratégica de negócios com a precisão técnica da programação para eliminar ineficiências.",
+                "I combine the strategic business vision with the technical precision of programming to eliminate inefficiencies."
+            )
+
+            st.markdown(f"""
             <div style='background-color: #f0f2f6; padding: 20px; border-radius: 10px; border-left: 5px solid #000000;'>
                 <p style='font-size: 18px; margin: 0; color: #31333F;'>
-                <b>"Não sou apenas um Analista de Dados, sou um Administrador com o domínio da tecnologia."</b><br>
-                <span style='font-size: 16px; color: #555;'>
-                Combino a visão estratégica de negócios com a precisão técnica da programação para eliminar ineficiências.
-                </span>
+                    <b>"{main_txt}"</b><br>
+                    <span style='font-size: 16px; color: #555;'>
+                        {comp_txt}
+                    </span>
                 </p>
             </div>
             """, unsafe_allow_html=True)
@@ -206,20 +242,20 @@ with st.container(border=True):
 
             with col_m1:
                 with st.container(border=True):
-                    st.markdown("### 🎯 Foco")
-                    st.caption("Resultado mensurável")
+                    st.markdown(idioma("### 🎯 Foco", "### 🎯 Focus"))
+                    st.caption(idioma("Resultado mensurável", "Measurable result"))
                     st.markdown("")
 
             with col_m2:
                 with st.container(border=True):
-                    st.markdown("### 🧭 Escopo")
-                    st.caption("Do Operacional ao Estratégico")
+                    st.markdown(idioma("### 🧭 Escopo", "### 🧭 Scope"))
+                    st.caption(idioma("Do Operacional ao Estratégico", "From Operational to Strategic"))
                     st.markdown("")
 
             with col_m3:
                 with st.container(border=True):
-                    st.markdown("### 🚀 Próximo Passo")
-                    st.link_button("📅 Agendar Avaliação", link_whatsapp)
+                    st.markdown(idioma("### 🚀 Próximo Passo", "### 🚀 Next Step"))
+                    st.link_button(idioma("📅 Agendar Avaliação", "📅 Schedule Evaluation"),link_whatsapp)
 
     with photo:
         year_birth = date(2003, 11, 12)
@@ -230,7 +266,7 @@ with st.container(border=True):
         st.markdown(f"""
         <div style="text-align: center; margin-top: 2px;">
             <p style="font-weight: bold; font-size: 18px; margin-bottom: 2px;">Thiago Prochnow Borges</p>
-            <p style="color: #666; font-size: 14px;"> {age} anos | Campinas - SP</p>
+            <p style="color: #666; font-size: 14px;"> {age} {idioma('anos', 'years')} | Campinas - SP</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -249,7 +285,7 @@ st.markdown("""
 
 
 ## ----- TABS -----
-tab_sobre, tab_servicos, tab_portfolio = st.tabs(["🙋🏻‍♂️ Sobre Mim", "🛠️ Soluções", "📊 Portifólio"])
+tab_sobre, tab_servicos, tab_portfolio = st.tabs(idioma(["🙋🏻‍♂️ Sobre Mim", "🛠️ Soluções", "📊 Portifólio"], ["🙋🏻‍♂️ About Me", "🛠️ Solutions", "📊 Portfolio"]))
 
 with tab_sobre:
     col_text,esp1,col_skills1,esp2, col_skills2 = st.columns([4,0.2,2,0.2,2.9])
@@ -257,25 +293,37 @@ with tab_sobre:
     with col_text:
         st.markdown("")
         with st.container(border=True):
-            st.markdown("### Onde Negócios e Dados se Encontram")
+            st.markdown(idioma("### Onde Negócios e Dados se Encontram", "### Where Business and Data Meet"))
             st.markdown("")
 
-            st.markdown("""
-            Atuo na lacuna entre a Gestão e a TI. Meu objetivo é garantir que cada dado coletado se traduza em **:green-background[Vantagem Competitiva]** para o seu negócio.
-            Não entrego apenas "códigos funcionando", entrego processos otimizados que se pagam pelo tempo e recursos economizados.
+            st.markdown(idioma(
+                """
+                Atuo na lacuna entre a Gestão e a TI. Meu objetivo é garantir que cada dado coletado se traduza em **:green-background[Vantagem Competitiva]** para o seu negócio.
+                Não entrego apenas "códigos funcionando", entrego processos otimizados que se pagam pelo tempo e recursos economizados.
 
-            Combino a visão estratégica de negócios com uma gama de habilidades técnicas robustas para transformar planilhas manuais 
-            e processos lentos em **:green-background[dashboards de decisão e automações inteligentes]**.
+                Combino a visão estratégica de negócios com uma gama de habilidades técnicas robustas para transformar planilhas manuais 
+                e processos lentos em **:green-background[dashboards de decisão e automações inteligentes]**.
 
-            Seja reestruturando processos falhos ou implementando inovação, meu compromisso é com a **entrega de valor contínuo**. 
-            Desenvolvo soluções escaláveis que funcionam no mundo real, permitindo que sua equipe pare de apagar incêndios operacionais e foque no que realmente importa: **:green-background[o Core Business]**.
-            """)
+                Seja reestruturando processos falhos ou implementando inovação, meu compromisso é com a **entrega de valor contínuo**. 
+                Desenvolvo soluções escaláveis que funcionam no mundo real, permitindo que sua equipe pare de apagar incêndios operacionais e foque no que realmente importa: **:green-background[o Core Business]**.
+                """,
+                """
+                I bridge the gap between Management and IT. My goal is to ensure that every piece of data collected translates into a **:green-background[Competitive Advantage]** for your business.
+                I don't just deliver "working code", I deliver optimized processes that pay for themselves through saved time and resources.
+
+                I combine a strategic business vision with a robust set of technical skills to transform manual spreadsheets 
+                and slow processes into **:green-background[decision-making dashboards and smart automations]**.
+
+                Whether restructuring flawed processes or implementing innovation, my commitment is to **continuous value delivery**. 
+                I develop scalable solutions that work in the real world, allowing your team to stop putting out operational fires and focus on what truly matters: **:green-background[the Core Business]**.
+                """
+            ))
 
 with col_skills1:
         st.markdown("")
         with st.container(border=True):
             # --- BLOCK 1: TECHNOLOGY ---
-            st.markdown("### 🛠️ Tecnologias")
+            st.markdown(idioma("### 🛠️ Tecnologias","### 🛠️ Technologies"))
             
             st.write("**PYTHON**")
             st.progress(80)
@@ -283,10 +331,10 @@ with col_skills1:
             st.write("**POWER BI & DAX**")
             st.progress(90)
             
-            st.write("**SQL & BANCO DE DADOS**")
+            st.write(idioma("**SQL & BANCO DE DADOS**", "**SQL & DATABASE**"))
             st.progress(85)
             
-            st.write("**EXCEL AVANÇADO**")
+            st.write(idioma("**EXCEL AVANÇADO**", "**EXCEL ADVANCED**"))
             st.progress(95)
 
             st.markdown("####")

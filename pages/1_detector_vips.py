@@ -114,13 +114,19 @@ st.markdown("")
 
 # --- SIDEBAR ---
 with st.sidebar:
+
+    st.page_link("portfolio.py", label="Voltar ao início", icon="🏠")
+
+    st.divider()
+
     with st.container(border=True):
         st.header("📂 Seus Dados")
         upload_file = st.file_uploader("Suba sua planilha de vendas (Excel/CSV/TXT)", type=['xls', 'xlsb', 'xlsm', 'csv', 'txt'])
         
         st.markdown("---")
         
-        example_button = st.checkbox("Não tem dados? ***Usar Exemplo***", value=False)
+        st.info("💡 Quer apenas testar a ferramenta?")
+        example_button = st.toggle("Ativar Dados de Exemplo", value=False)
 
 # --- LOADING LOGIC ---
 df = None
