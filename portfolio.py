@@ -219,7 +219,7 @@ with st.container(border=True):
             with col_m3:
                 with st.container(border=True):
                     st.markdown("### 🚀 Próximo Passo")
-                    st.link_button("📅 Agendar Diagnóstico", link_whatsapp)
+                    st.link_button("📅 Agendar Avaliação", link_whatsapp)
 
     with photo:
         year_birth = date(2003, 11, 12)
