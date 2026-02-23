@@ -597,7 +597,7 @@ with tab_portfolio:
         
         with col_imagem:
             st.video(
-            'Utilities/Video Project 2.mp4',
+            'Utilities/projeto_vip.mp4',
             format="video/mp4", 
             start_time=0, 
             autoplay=True,
