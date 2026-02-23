@@ -3,3 +3,4 @@ pandas
 openpyxl
 selenium
 webdriver_manager
+plotly
