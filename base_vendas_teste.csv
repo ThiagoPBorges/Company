@@ -1,0 +1,49 @@
+ID_Cliente,Nome,Data_Compra,Categoria,Total_Gasto,Forma_Pagamento,Vendedor
+101,TechSolutions Ltda,2023-11-02,Eletrônicos,48511.81,Cartão de Crédito,Fernanda Lima
+101,TechSolutions Ltda,2024-01-15,Escritório,12500.00,Transferência,Fernanda Lima
+102,Distribuidora Aliança,2023-07-12,Serviços,29918.25,Pix,Mariana Costa
+102,Distribuidora Aliança,2023-11-11,Escritório,38557.77,Cartão de Crédito,Mariana Costa
+102,Distribuidora Aliança,2024-02-01,Serviços,5000.00,Boleto,Mariana Costa
+103,Grupo Horizonte,2023-08-05,Ferragens,45194.94,Boleto,Mariana Costa
+103,Grupo Horizonte,2023-05-27,Alimentos,2743.41,Cartão de Crédito,Fernanda Lima
+104,Consultoria Exata,2024-01-07,Serviços,32550.23,Cartão de Crédito,Mariana Costa
+104,Consultoria Exata,2023-12-03,Eletrônicos,23373.29,Cartão de Crédito,Mariana Costa
+104,Consultoria Exata,2024-02-15,Escritório,8900.50,Pix,Carlos Souza
+105,Logística Veloz,2023-11-24,Ferragens,16638.97,Pix,Mariana Costa
+105,Logística Veloz,2023-09-18,Alimentos,36114.47,Cartão de Crédito,Fernanda Lima
+106,Inova Marketing,2023-10-14,Ferragens,13454.45,Pix,Carlos Souza
+106,Inova Marketing,2023-03-28,Alimentos,17519.47,Pix,Carlos Souza
+106,Inova Marketing,2023-07-30,Serviços,5488.74,Boleto,Ana Silva
+107,Construtora Base,2023-11-16,Limpeza,36027.35,Boleto,Ricardo Oliveira
+107,Construtora Base,2023-02-25,Ferragens,38632.58,Transferência,Ana Silva
+108,FarmaMed Distribuição,2023-11-23,Serviços,11614.17,Pix,Ana Silva
+108,FarmaMed Distribuição,2023-12-18,Limpeza,1977.80,Boleto,Fernanda Lima
+108,FarmaMed Distribuição,2024-01-05,Alimentos,8500.00,Pix,Ana Silva
+109,Agro Verde,2023-08-26,Ferragens,31053.14,Pix,Ana Silva
+109,Agro Verde,2023-07-15,Serviços,34107.03,Transferência,Mariana Costa
+110,Indústria MetalSul,2023-08-18,Alimentos,16174.75,Pix,Ricardo Oliveira
+110,Indústria MetalSul,2023-04-05,Limpeza,24648.52,Transferência,Mariana Costa
+110,Indústria MetalSul,2023-10-07,Escritório,15570.17,Transferência,Carlos Souza
+111,Comércio Global,2023-03-29,Escritório,32511.89,Cartão de Crédito,Carlos Souza
+111,Comércio Global,2023-07-14,Ferragens,44243.81,Pix,Carlos Souza
+111,Comércio Global,2023-02-27,Limpeza,16330.36,Transferência,Ana Silva
+112,Soft Systems,2023-08-20,Eletrônicos,46333.03,Boleto,Fernanda Lima
+112,Soft Systems,2023-04-09,Ferragens,21262.69,Cartão de Crédito,Carlos Souza
+112,Soft Systems,2024-01-10,Escritório,7429.78,Boleto,Fernanda Lima
+113,TransNacional,2023-06-19,Eletrônicos,42559.28,Transferência,Fernanda Lima
+113,TransNacional,2023-08-20,Serviços,25528.39,Transferência,Carlos Souza
+114,Segurança Prime,2023-03-31,Alimentos,17831.68,Pix,Carlos Souza
+114,Segurança Prime,2023-06-09,Automotivo,9554.72,Transferência,Mariana Costa
+115,Auto Peças Rota,2024-01-20,Automotivo,44506.26,Pix,Fernanda Lima
+115,Auto Peças Rota,2023-10-25,Ferragens,23082.73,Pix,Ricardo Oliveira
+116,Limpeza & Service,2023-04-08,Alimentos,20889.48,Transferência,Mariana Costa
+116,Limpeza & Service,2023-06-25,Alimentos,35211.84,Transferência,Carlos Souza
+117,Advocacia Silva,2024-02-04,Limpeza,5313.14,Pix,Ana Silva
+117,Advocacia Silva,2024-02-09,Serviços,21240.60,Cartão de Crédito,Ricardo Oliveira
+118,Engenharia Norte,2023-10-07,Automotivo,22956.89,Pix,Ana Silva
+118,Engenharia Norte,2023-06-17,Automotivo,15881.72,Pix,Ana Silva
+119,Importadora Águia,2023-04-16,Alimentos,46170.63,Pix,Carlos Souza
+119,Importadora Águia,2023-09-06,Limpeza,40178.12,Transferência,Carlos Souza
+119,Importadora Águia,2023-05-15,Alimentos,39994.00,Transferência,Ana Silva
+120,Rede Supermix,2023-04-22,Alimentos,30021.79,Transferência,Mariana Costa
+120,Rede Supermix,2023-08-13,Alimentos,49671.05,Pix,Ana Silva

@@ -3,12 +3,24 @@ import pandas as pd
 import time
 import urllib.parse
 import io
+import plotly.express as px
+from portfolio import idiom
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Detector de Clientes VIP",
+    page_title=idiom("Detector de Clientes VIP", "VIP Clients Detector"),
     page_icon="💎",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded",
+    # --- NOVA CONFIGURAÇÃO DE MENU ---
+    menu_items={
+        'Get Help': 'https://www.linkedin.com/in/thiagopborges/',
+        'Report a bug': None,
+        'About': idiom(
+            "### 💎 Detector de Oportunidades\nDesenvolvido para transformar dados em decisões estratégicas.",
+            "### 💎 Opportunities Detector\nDeveloped to transform data into strategic decisions."
+        )
+    }
 )
 
 # Remove the default app margin
@@ -39,7 +51,7 @@ page_style = """
     }
 
     /* 3. CARTÕES DE VIDRO E EXPANDER */
-    /* Agora aplicamos o vidro diretamente no 'details' do Expander */
+    [data-testid="stVerticalBlockBorderWrapper"],
     [data-testid="stVerticalBlockBorderWrapper"] > div, 
     [data-testid="stExpander"] details {
         background-color: rgba(51, 65, 85, 0.7) !important; 
@@ -49,14 +61,6 @@ page_style = """
         border-radius: 12px !important;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
     }
-    
-    /* Remove o fundo branco nativo do Streamlit ao abrir ou passar o mouse */
-    [data-testid="stExpander"] summary {
-        background-color: transparent !important;
-    }
-    [data-testid="stExpander"] summary:hover {
-        background-color: rgba(255, 255, 255, 0.05) !important; /* Brilho super suave ao passar o mouse */
-    }
 
     /* 4. TIPOGRAFIA GERAL (Área Principal Escura) */
     h1, h2, h3, h4, h5, h6, span, .stMarkdown p, 
@@ -65,9 +69,10 @@ page_style = """
         color: #ffffff !important; 
     }
     
-    p, li, label, .stText {
-        color: #e2e8f0 !important; 
-    }
+    p, li, .stMarkdown {
+        color: #ffffff !important; /* Cinza escuro (quase preto) é mais elegante que #000000 */
+    }    
+
     
     /* 5. TIPOGRAFIA DA SIDEBAR (Texto Preto Forçado) */
     [data-testid="stSidebar"] h1, 
@@ -84,6 +89,32 @@ page_style = """
     [data-testid="stHeader"] {
         background: transparent !important;
     }
+
+    /* 8. ESCONDER RODAPÉ (Made with Streamlit) */
+    footer {
+        visibility: hidden;
+    }
+
+    /* 9. CORRIGIR CORES DO MENU SUPERIOR E DA JANELA 'SOBRE' */
+    div[role="menu"] span, 
+    div[role="menu"] p,
+    div[role="dialog"] span,
+    div[role="dialog"] p,
+    div[role="dialog"] h1,
+    div[role="dialog"] h2,
+    div[role="dialog"] h3 {
+        color: #1e293b !important; /* Azul bem escuro/quase preto para dar contraste */
+    }
+
+    /* 10. CORREÇÃO DEFINITIVA DOS TEXTOS (Selectbox) */
+    .stSelectbox div[data-baseweb="select"] span,
+    .stSelectbox div[data-baseweb="select"] div,
+    div[data-baseweb="popover"] span,
+    div[data-baseweb="popover"] li,
+    div[data-baseweb="popover"] div {
+        color: #1e293b !important;
+    }
+    
 </style>
 """
 
@@ -103,30 +134,55 @@ def loading_example_dataset():
 }
     return pd.DataFrame(dados)
 
-# --- MAIN INTERFACE ---
-st.title("💎 Detector de Oportunidades (RFM)")
-st.markdown("""
-Descubra quem são seus **Clientes VIPs**, quem está **Em Risco** de ir embora 
-e gere mensagens automáticas de recuperação via WhatsApp.
-""")
-
-st.markdown("")
-
 # --- SIDEBAR ---
 with st.sidebar:
 
-    st.page_link("portfolio.py", label="Voltar ao início", icon="🏠")
+    # Create button to alternate EN-PT
+    escolha = st.radio(
+        "idiom / Language", 
+        ['PT - 🇧🇷', 'EN - 🇺🇸'], 
+        horizontal=True,
+        label_visibility="collapsed"
+    )
+    # Save on memory EN-PT
+    if 'PT' in escolha:
+        st.session_state['idiom'] = 'PT'
+    else:
+        st.session_state['idiom'] = 'EN'
+    
+    st.markdown("")
+    st.markdown("")
+
+    st.page_link("portfolio.py", label=idiom("Voltar ao início", "Home"), icon="🏠")
 
     st.divider()
 
     with st.container(border=True):
-        st.header("📂 Seus Dados")
-        upload_file = st.file_uploader("Suba sua planilha de vendas (Excel/CSV/TXT)", type=['xls', 'xlsb', 'xlsm', 'csv', 'txt'])
+        st.header(idiom("📂 Seus Dados", "📂 Your Data"))
+        upload_file = st.file_uploader(idiom("Suba sua planilha de vendas (Excel/CSV/TXT)", "Upload your sales spreadsheet (Excel/CSV/TXT)"), type=['xls', 'xlsb', 'xlsm', 'csv', 'txt'])
+
+        if st.button(idiom("🔄 Limpar e Reiniciar", "🔄 Clear and Restart")):
+            st.cache_data.clear()
+            st.session_state.clear()
+            st.rerun()
         
         st.markdown("---")
         
-        st.info("💡 Quer apenas testar a ferramenta?")
-        example_button = st.toggle("Ativar Dados de Exemplo", value=False)
+        st.info(idiom("💡 Quer apenas testar a ferramenta?","Do you want to test the tool?"))
+        example_button = st.toggle(idiom("Ativar Dados de Exemplo", "Activate Example Data"), value=False)
+
+# --- MAIN INTERFACE ---
+st.title(idiom("💎 Detector de Oportunidades (RFM)", "💎 RFM Detector"))
+st.markdown(idiom("""
+Descubra quem são seus **Clientes VIPs**, quem está **Em Risco** de ir embora 
+e gere mensagens automáticas de recuperação via WhatsApp.
+""",
+"""
+Discover who are your **VIP Clients**, who are **In Risk** of leaving and generate automatic recovery messages via WhatsApp.
+"""
+))
+
+st.markdown("")
 
 # --- LOADING LOGIC ---
 df = None
@@ -141,47 +197,74 @@ if upload_file:
         elif upload_file.name.endswith('.txt'):
             df = pd.read_csv(upload_file, sep='\t')
         else:
-            st.error("Formato de arquivo não suportado.")
-        st.sidebar.success("Dados carregados com sucesso!")
+            st.error(idiom("Formato de arquivo não suportado.", "Unsupported file format."))
+        st.sidebar.success(idiom("Dados carregados com sucesso!", "Data loaded successfully!"))
     except Exception as e:
-        st.error(f"Erro ao ler arquivo: {e}")
+        st.error(idiom("Erro ao ler arquivo.", "Error reading file."))
 
 elif example_button:
     df = loading_example_dataset()
-    st.sidebar.info("Utilizando dados fictícios de demonstração.")
+    st.sidebar.info(idiom("Utilizando dados fictícios de demonstração.", "Using fictitious demonstration data"))
 
 # --- DASHBOARD (Before calculation) ---
 if df is not None:
-    st.subheader("📋 Visão Geral dos Dados")
+    st.subheader(idiom("📋 Visão Geral dos Dados", "📋 Data Overview"))
     st.dataframe(df, hide_index=True, use_container_width=True)
 
+    with st.container(border=True):
+        st.subheader(idiom("⚙️ Mapeamento de Vendas", "⚙️ Sales Mapping"))
+        st.markdown("")
+        st.success(idiom("👇 Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.", "👇 indicate the columns of your sales statement for the system to calculate the customer profile."))
 
-    st.subheader("⚙️ Mapeamento de Vendas")
-    st.markdown("")
-    st.success("👇 Indique as colunas do seu extrato de vendas para que o sistema calcule o perfil de cada cliente.")
+        st.markdown("")
 
-    st.markdown("")
+        # Set columns for user choose related of his own dataset
+        col1, col2, col3, col4 = st.columns(4)
 
-    # Set columns for user choose related of his own dataset
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        col_id = st.selectbox("Coluna de ID/NOME do Cliente", df.columns, index=1)
+        with col1:
+            col_id = st.selectbox(idiom("Coluna de ID/NOME do Cliente", "Customer ID/Name Column"), df.columns, index=1)
+            
+        with col2:
+            col_date = st.selectbox(idiom("Coluna da DATA da Venda", "Sale Date Column"), df.columns, index=2)
+            
+        with col3:
+            col_cat = st.selectbox(idiom("Coluna da CATEGORIA do Produto", "Product Category Column"), df.columns, index=4)
         
-    with col2:
-        col_date = st.selectbox("Coluna da DATA da Venda", df.columns, index=2)
+        with col4:
+            col_value = st.selectbox(idiom("Coluna do VALOR da Venda (R$)", "Sale Value Column (R$)"), df.columns, index=3)
         
-    with col3:
-        col_value = st.selectbox("Coluna do VALOR da Venda (R$)", df.columns, index=3)
-
-    st.markdown("######")
 
     try:
 
         # --- DASHBOARD (After calculation) ---
-        if st.button("🚀 Processar e Calcular RFM", type="primary"):
-            with st.spinner("Analisando todas as vendas..."):
+        if st.button(idiom("🚀 Processar e Calcular RFM", "🚀 Process and Calculate RFM"), type="primary"):
+            st.session_state['processado'] = True
+            with st.spinner(idiom("Analisando todas as vendas...", "Analyzing all sales...")):
                 time.sleep(1)
 
+        if st.session_state.get('processado', False):
+
+            # --- Error prevention ---
+            try:
+
+                df[col_date] = pd.to_datetime(df[col_date], errors='coerce')
+                
+                if df[col_value].dtype != 'float64':
+                    df[col_value] = df[col_value].astype(str).str.replace('R$', '', regex=False).str.replace('.', '', regex=False).str.replace(',', '.').str.strip()
+                df[col_value] = pd.to_numeric(df[col_value], errors='coerce')
+                
+                # Safety lock
+                if df[col_date].isna().all() or df[col_value].isna().all():
+                    st.error(idiom(
+                        "🚨 Ops! Parece que você selecionou alguma coluna errada. O cálculo foi interrompido.", 
+                        "🚨 Oops! It looks like you selected the some of the columns. The calculation was stopped."
+                    ))
+                    st.stop()
+
+            except Exception as e:
+                st.error(f"{idiom('Erro ao formatar as colunas:', 'Error formatting columns:')} {e}")
+                st.stop()
+            # ---------------------------------------------------
 
             last_sale_date = df[col_date].max()
 
@@ -193,161 +276,266 @@ if df is not None:
             })
 
             df_rfm.rename(columns={
-                col_date: 'Recência (Dias)',
-                col_value: 'Monetário (R$)',
-                col_id: 'Frequência (Vezes)'
+                col_date: idiom("Recência (Dias)", "Recency (Days)"),
+                col_value: idiom('Monetário (R$)', 'Monetary (R$)'),
+                col_id: idiom('Frequência (Vezes)', 'Frequency (Times)')
             }, inplace=True)
 
-            # RMF rule : 
-            ## Divide clients for 5 groups (quintiles), assigning notes 1 to 5
 
+            df_rfm["R_Score"] = pd.qcut(df_rfm[idiom("Recência (Dias)", "Recency (Days)")].rank(method="first"), q=5, labels=[5, 4, 3, 2, 1], duplicates="drop")
+            df_rfm["M_Score"] = pd.qcut(df_rfm[idiom("Monetário (R$)", "Monetary (R$)")].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
+            df_rfm["F_Score"] = pd.qcut(df_rfm[idiom("Frequência (Vezes)", "Frequency (Times)")].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
+            
+            df_rfm["RFM_Score"] = df_rfm["R_Score"].astype(str) + df_rfm["F_Score"].astype(str) + df_rfm["M_Score"].astype(str)
+
+            # RMF rule : 
+
+            ## Divide clients for 5 groups (quintiles), assigning notes 1 to 5
             # 1. Recency (R_Score): Inverted order [5, 4, 3, 2, 1].
             # - Less time (days) since the last purchase, the higher the better.
             # 2. Frequency (F_Score): Ascending order [1, 2, 3, 4, 5].
             # - More purchases, the higher the better.
             # 3. Monetary (M_Score): Ascending order [1, 2, 3, 4, 5].
             # - More money spent, the higher the better.
-
-            df_rfm["R_Score"] = pd.qcut(df_rfm["Recência (Dias)"].rank(method="first"), q=5, labels=[5, 4, 3, 2, 1], duplicates="drop")
-            df_rfm["M_Score"] = pd.qcut(df_rfm["Monetário (R$)"].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
-            df_rfm["F_Score"] = pd.qcut(df_rfm["Frequência (Vezes)"].rank(method="first"), q=5, labels=[1, 2, 3, 4, 5], duplicates="drop")
-            # Putting the numbers together to have a consolidated rule
-            df_rfm["RFM_Score"] = df_rfm["R_Score"].astype(str) + df_rfm["F_Score"].astype(str) + df_rfm["M_Score"].astype(str)
+            p_champ = idiom('🏆 Campeões', '🏆 Champions')
+            p_new = idiom('🌟 Novos & Promissores', '🌟 New & Promising')
+            p_risky = idiom('⚠️ Em Risco', '⚠️ At Risk')
+            p_hibernating = idiom('💤 Hibernando', '💤 Hibernating')
+            p_regular = idiom('🔄 Regulares', '🔄 Regulars')
 
             # Naming the groups of RFM
             def rfm_segment(row):
-
                 rfm = row['RFM_Score']
-
                 if rfm[0] in ['5','4'] and rfm[1] in ['5','4'] and rfm[2] in ['5','4']:
-                    return '🏆 Campeões', 1
-
+                    return p_champ, 1
                 elif rfm[0] in ['5','4'] and rfm[1] in ['1','2']:
-                    return '🌟 Novos & Promissores', 2
-
+                    return p_new, 2
                 elif rfm[1] in ['5','4'] and rfm[2] in ['5','4'] and rfm[0] in ['1','2']:
-                    return '⚠️ Em Risco' , 3
-
+                    return p_risky, 3
                 elif rfm[0] in ['1'] and rfm[1] in ['1']:
-                    return '💤 Hibernando', 4
-
+                    return p_hibernating, 4
                 else:
-                    return '🔄 Regulares', 5
+                    return p_regular, 5
+            
+            # Function for create message on whatsapp
+            def whatsapp_message(row):
+                client = row.name
+                profile = row[idiom('Perfil_cliente', 'Profile')]
+
+                if profile == p_champ:
+                    return idiom(
+                        f"Olá {client}, tudo bem? Você faz parte do nosso seleto grupo de clientes VIP, e queremos reconhecer essa parceria! Liberamos um acesso antecipado às nossas novidades e um cupom exclusivo de 15% OFF. Como podemos te ajudar hoje? 💎",
+                        f"Hello {client}, how are you? This is [Your Company]. You're part of our select VIP client group, and we want to reward this partnership! We've unlocked early access to our new arrivals and an exclusive 15% OFF coupon. How can we help you today? 💎"
+                    )
                 
-            df_rfm[['Perfil_cliente', 'Prioridade']] = df_rfm.apply(rfm_segment, axis=1, result_type='expand')
+                elif profile == p_risky:
+                    return idiom(
+                        f"Olá {client}, como estão as coisas? Notamos que faz um tempo desde a nossa última conversa. Muita coisa mudou por aqui e trouxemos novidades que podem te interessar. Para celebrar seu retorno, ativamos uma condição especial na sua conta. Tem 1 minutinho para conferir? 🤝",
+                        f"Hello {client}, how have you been? We noticed it's been a while since we last spoke. A lot has changed here, and we have new arrivals that might interest you. To celebrate your return, we've activated a special condition on your account. Got a minute to check it out? 🤝"
+                    )
+                
+                elif profile == p_new:
+                    return idiom(
+                        f"Olá {client}! Ficamos muito felizes com a sua recente escolha pela nossa marca. Para garantir que sua experiência continue incrível, preparamos uma curadoria de produtos que combinam com você, além de um bônus de boas-vindas na sua próxima compra. Podemos te mostrar? ✨",
+                        f"Hello {client}! We're thrilled with your recent choice of our brand. To ensure your experience remains amazing, we've curated some products that match your style, plus a welcome bonus on your next purchase. Can we show you? ✨"
+                    )
+                
+                elif profile == p_hibernating:
+                    return idiom(
+                        f"Olá {client}! Valorizamos muito o histórico que construímos juntos. Como não nos falamos há algum tempo, preparamos uma oferta de reativação imperdível: 20% OFF em todo o catálogo para você atualizar seu estoque com a gente. Vamos reativar essa parceria? 🚀",
+                        f"Hello {client}! We highly value the history we've built together. Since we haven't spoken in a while, we've prepared an unmissable reactivation offer: 20% OFF our entire catalog for you to restock with us. Shall we reactivate this partnership? 🚀"
+                    )
 
+                else: # Regulares
+                    return idiom(
+                        f"Olá {client}, excelente dia! Passando para agradecer a confiança contínua no nosso trabalho. Separamos algumas recomendações estratégicas baseadas nas suas últimas escolhas. Quer dar uma olhada no que separamos para você? 📦",
+                        f"Hello {client}, hope you're having a great day! Dropping by to thank you for your continued trust in our work. We've set aside some strategic recommendations based on your past choices. Would you like to see what we have for you? 📦"
+                    )
+                
+                
+
+            df_rfm[idiom(['Perfil_cliente', 'Prioridade'], ['Profile', 'Priority'])] = df_rfm.apply(rfm_segment, axis=1, result_type='expand')
+
+            df_rfm[idiom('Mensagem', 'Message')] = df_rfm.apply(whatsapp_message, axis=1)
+            df_rfm['Link_WhatsApp'] = df_rfm[idiom('Mensagem', 'Message')].apply(
+                lambda x: f"https://api.whatsapp.com/send?text={urllib.parse.quote(x)}"
+            )
+
+            sheet_kpis, sheet_produtos, sheet_crm, sheet_dados = st.tabs([
+                idiom("📊 Visão Geral", "📊 Overview"), 
+                idiom("🛒 Produtos", "🛒 Products"), 
+                idiom("💬 Campanhas (CRM)", "💬 Campaigns (CRM)"),
+                idiom("📋 Dados brutos processados", "📋 Clean Raw Data")
+            ])
+            
+            with sheet_kpis:
             # --- Results panel ---
-            with st.container(border=True):
-                st.markdown(
-                    """
-                    <h2 style='text-align: center; background-color: #1E3A8A; color: #FFFFFF; padding: 10px; border-radius: 10px;'>
-                        ANÁLISE DE PERFIL DE CLIENTES
-                    </h2>
-                    """, 
-                    unsafe_allow_html=True
-                )
-                st.markdown("")
+                with st.container(border=True):
+                    st.markdown(
+                        f"""
+                        <h2 style='text-align: center; background-color: #1E3A8A; color: #FFFFFF; padding: 10px; border-radius: 10px;'>
+                            {idiom("ANÁLISE DE PERFIL DE CLIENTES", "CLIENT PROFILE ANALYSIS")}
+                        </h2>
+                        """, 
+                        unsafe_allow_html=True
+                    )
 
-                counts = df_rfm['Perfil_cliente'].value_counts()
-                total_clientes = counts.sum()
+                    st.markdown("")
 
-                col_total, col_barras = st.columns([1.5, 4])
+                    counts = df_rfm[idiom('Perfil_cliente', 'Profile')].value_counts().sort_values(ascending=False)
+                    total_clients = counts.sum()
 
-                with col_total:
-                    st.markdown(f"""
-                    <div style="text-align: center; padding: 12px 10px; background-color: rgba(51, 65, 85, 0.7); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); height: 100%;">
-                        <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 0px;">Total de Clientes</p>
-                        <p style="font-size: 52px; font-weight: bold; color: #ffffff; margin-top: -10px; margin-bottom: 0px;">{total_clientes}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    col_total, col_barras = st.columns([1.5, 4])
 
-                with col_barras:
-                    df_kpis_barras = pd.DataFrame({
-                        "Perfil": ["🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
-                        "Quantidade": [
-                            counts.get('🏆 Campeões', 0)/total_clientes,
-                            counts.get('🌟 Novos & Promissores', 0)/total_clientes,
-                            counts.get('⚠️ Em Risco', 0)/total_clientes,
-                            counts.get('💤 Hibernando', 0)/total_clientes,
-                            counts.get('🔄 Regulares', 0)/total_clientes
+                    with col_total:
+                        st.markdown(f"""
+                        <div style="text-align: center; padding: 12px 10px; background-color: rgba(51, 65, 85, 0.7); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.15); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); height: 100%;">
+                            <p style="font-size: 16px; color: #cbd5e1; margin-bottom: 0px;">{idiom("Total de Clientes", "Total Clients")}</p>
+                            <p style="font-size: 52px; font-weight: bold; color: #ffffff; margin-top: -10px; margin-bottom: 0px;">{total_clients}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    with col_barras:
+                        df_kpis_barras = pd.DataFrame({
+                            idiom("Perfil", "Profile"): [p_champ, p_new, p_risky, p_hibernating, p_regular],
+                            idiom("Quantidade", "Quantity"): [
+                                counts.get(p_champ, 0)/total_clients,
+                                counts.get(p_new, 0)/total_clients,
+                                counts.get(p_risky, 0)/total_clients,
+                                counts.get(p_hibernating, 0)/total_clients,
+                                counts.get(p_regular, 0)/total_clients
+                            ]
+                        })
+
+                        st.markdown("")
+                        st.markdown("")
+                        
+                        st.dataframe(
+                            df_kpis_barras.set_index(idiom("Perfil", "Profile")).T,
+                            hide_index=True,
+                            use_container_width=True,
+                            column_config={
+                                p_champ: st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="green"),
+                                p_new: st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="orange"),
+                                p_risky: st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="red"),
+                                p_hibernating: st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="grey"),
+                                p_regular: st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="blue")
+                            }
+                        )
+
+                    clientes_por_perfil = df_rfm.groupby(idiom('Perfil_cliente', 'Profile')).apply(lambda x: list(x.index)).to_dict()
+
+                    st.markdown("")
+                    df_kpis_list = pd.DataFrame({
+                        idiom("Perfil", "Profile"): [p_champ, p_new, p_risky, p_hibernating, p_regular],
+                        idiom("Lista de Clientes", "Client List"): [
+                            clientes_por_perfil.get(p_champ, []),
+                            clientes_por_perfil.get(p_new, []),
+                            clientes_por_perfil.get(p_risky, []),
+                            clientes_por_perfil.get(p_hibernating, []),
+                            clientes_por_perfil.get(p_regular, [])
                         ]
                     })
 
-                    st.markdown("")
-                    st.markdown("")
-
                     st.dataframe(
-                        df_kpis_barras.set_index("Perfil").T,
+                        df_kpis_list,
                         hide_index=True,
                         use_container_width=True,
                         column_config={
-                            "🏆 Campeões": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="green"),
-                            "🌟 Novos & Promissores": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="orange"),
-                            "⚠️ Em Risco": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="red"),
-                            "💤 Hibernando": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="grey"),
-                            "🔄 Regulares": st.column_config.ProgressColumn(format="percent", min_value=0, max_value=1, color="blue")
+                            idiom("Lista de Clientes", "Client List"): st.column_config.ListColumn(
+                                idiom("Clientes no Perfil", "Clients in Profile")
+                            )
                         }
                     )
 
-                clientes_por_perfil = df_rfm.groupby('Perfil_cliente').apply(lambda x: list(x.index)).to_dict()
+            with sheet_produtos:
+                df_sales_by_profile = df.merge(
+                    df_rfm[[idiom('Perfil_cliente', 'Profile')]],
+                    how='left',
+                    left_on=col_id,
+                    right_index=True
+                )
 
-                # Create list panel, transforming dataframe into list of profile clients
-                st.markdown("")
-                df_kpis_list = pd.DataFrame({
-                    "Perfil": ["🏆 Campeões", "🌟 Novos & Promissores", "⚠️ Em Risco", "💤 Hibernando", "🔄 Regulares"],
-                    "Lista de Clientes": [
-                        clientes_por_perfil.get('🏆 Campeões', []),
-                        clientes_por_perfil.get('🌟 Novos & Promissores', []),
-                        clientes_por_perfil.get('⚠️ Em Risco', []),
-                        clientes_por_perfil.get('💤 Hibernando', []),
-                        clientes_por_perfil.get('🔄 Regulares', [])
-                    ]
-                })
+                profile = st.selectbox(idiom("Selecione o perfil de cliente", "Select the client profile"), (p_champ, p_new, p_risky, p_hibernating, p_regular), index=0)
 
-                # Set the list panel
+                c1,c2,c3 = st.columns(3)
+                with c2:
+                    vision = st.radio('',
+                        [idiom("📦 Volume (Quantidade)", "📦 Volume (Quantity)"), idiom("💰 Faturamento (Valor)", "💰 Revenue (Value)")],
+                        horizontal=True
+                    )
+
+                df_categories = df_sales_by_profile[df_sales_by_profile[idiom('Perfil_cliente', 'Profile')] == profile]
+
+                # 1. Contamos e transformamos o resultado em uma tabela limpa
+                if vision == idiom("📦 Volume (Quantidade)", "📦 Volume (Quantity)"):
+                    categ_counts = df_categories[col_cat].value_counts().reset_index()
+                    eixo_y = idiom('Quantidade', 'Quantity')
+                else:
+                    categ_counts = df_categories.groupby(col_cat)[col_value].sum().reset_index()
+                    eixo_y = idiom('Faturamento (R$)', 'Revenue (R$)')
+
+                # Nomeamos a coluna dinamicamente
+                categ_counts.columns = [idiom('Categoria', 'Category'), eixo_y]
+
+                st.markdown(idiom(f"### 🛒 O que os seus clientes {profile[2:]} estão comprando?", f"### 🛒 What are your {profile[2:]} clients buying?"))
+                
+                fig = px.bar(
+                    categ_counts, 
+                    x=idiom('Categoria', 'Category'), 
+                    y=eixo_y,
+                    text_auto='.2s' if "Valor" in vision or "Revenue" in vision else True,
+                    color=eixo_y,
+                    color_continuous_scale="Blues"
+                )
+                fig.update_layout(
+                    xaxis={'categoryorder':'total descending'},
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    coloraxis_showscale=False,
+                    margin=dict(t=20, b=20, l=0, r=0)
+                )
+                fig.update_yaxes(showgrid=False, visible=False) # Retira a linha e os números da esquerda
+                st.plotly_chart(fig, use_container_width=True)
+            
+            with sheet_crm:
+                st.markdown(idiom("### 📲 Central de Ação Rápida", "### 📲 Quick Action Center"))
+                st.write(idiom("Filtre o perfil e dispare as mensagens personalizadas com um clique.", "Filter the profile and trigger personalized messages with one click."))
+                
+                # Seletor de Perfil exclusivo para o CRM
+                perfil_crm = st.selectbox(
+                    idiom("Selecione o público-alvo da campanha:", "Select the campaign target audience:"), 
+                    (p_champ, p_new, p_risky, p_hibernating, p_regular), 
+                    index=2
+                )
+                
+                # Filtra a base e mostra as colunas que importam
+                df_crm = df_rfm[df_rfm[idiom('Perfil_cliente', 'Profile')] == perfil_crm].reset_index()
+                
+                # Exibe uma tabela limpa só com Cliente, Valor e o Botão
                 st.dataframe(
-                    df_kpis_list,
+                    df_crm[[col_id, idiom('Monetário (R$)', 'Monetary (R$)'), idiom('Mensagem', 'Message'), 'Link_WhatsApp']],
                     hide_index=True,
                     use_container_width=True,
                     column_config={
-                        "Lista de Clientes": st.column_config.ListColumn(
-                            "Clientes no Perfil"
+                        idiom('Monetário (R$)', 'Monetary (R$)'): st.column_config.NumberColumn(format="R$ %.2f"),
+                        'Link_WhatsApp': st.column_config.LinkColumn(
+                            label=idiom("💬 Ação", "💬 Action"),
+                            display_text=idiom("📲 Enviar WhatsApp", "📲 Send WhatsApp")
                         )
                     }
                 )
 
-            # Function for create message on whatsapp, depends about profile client
-            def whatsapp_message(row):
-
-                client = row.name
-                profile = row['Perfil_cliente']
-
-                if profile == '🏆 Campeões':
-                    return f"Olá {client}! Tudo bem? Vimos que você é um dos nossos melhores clientes. Como agradecimento, geramos um cupom de 15% OFF para sua próxima compra! 🎁"
-                
-                elif profile == '⚠️ Em Risco':
-                    return f"Olá {client}! Faz um tempinho que não nos vemos. Sentimos sua falta! Chegaram novidades por aqui, quer dar uma olhada? 👀"
-                
-                elif profile == '🌟 Novos & Promissores':
-                    return f"Olá {client}! Foi muito bom ter você com a gente recentemente. Preparamos algumas recomendações especiais que são a sua cara. Vem ver! ✨"
-                
-                elif profile == '💤 Hibernando':
-                    return f"Oi {client}, sumido! Saudade de ver você por aqui. Para celebrar sua volta, liberamos um desconto exclusivo de 20% em todo o site. Aproveite! 🚀"
-
-                else:
-                    # Commom message for regular clients
-                    return f"Olá {client}, confira nossas ofertas da semana!"
-                
-            df_rfm['Mensagem'] = df_rfm.apply(whatsapp_message, axis=1)
-
-            # Transform message on clickable link
-            df_rfm['Link_WhatsApp'] = df_rfm['Mensagem'].apply(
-                lambda x: f"https://api.whatsapp.com/send?text={urllib.parse.quote(x)}"
-            )
-
             # RAW BASE AFTER CALCULATION
-            with st.expander("📋 Detalhamento (Base Completa)"):
-                st.dataframe(df_rfm.reset_index().sort_values(by='Prioridade'),
+            with sheet_dados:
+                df_rfm[idiom('Mensagem', 'Message')] = df_rfm.apply(whatsapp_message, axis=1)
+
+                df_rfm['Link_WhatsApp'] = df_rfm[idiom('Mensagem', 'Message')].apply(
+                    lambda x: f"https://api.whatsapp.com/send?text={urllib.parse.quote(x)}"
+                )
+
+
+                st.dataframe(df_rfm.reset_index().sort_values(by=idiom('Prioridade', 'Priority')),
                             hide_index=True,
                             use_container_width=True,
                             column_config={
@@ -355,45 +543,38 @@ if df is not None:
                                 'M_Score': None,
                                 'F_Score': None,
                                 'RFM_Score': None,
-                                'Mensagem': None,
-                                'Prioridade': None,
-                                'Monetário (R$)': st.column_config.NumberColumn(
+                                idiom('Mensagem', 'Message'): None,
+                                idiom('Prioridade', 'Priority'): None,
+                                idiom('Monetário (R$)', 'Monetary (R$)'): st.column_config.NumberColumn(
                                     format="R$ %.2f"),
-                                # --- A MÁGICA AQUI ---
                                 'Link_WhatsApp': st.column_config.LinkColumn(
-                                    label="💬 Ação",
-                                    display_text="📲 Enviar WhatsApp"
+                                    label=idiom("💬 Ação", "💬 Action"),
+                                    display_text=idiom("📲 Enviar WhatsApp", "📲 Send WhatsApp")
                                 )
                             })
                 
-    
-    # --- DOWNLOAD FUNCTION ---
-            st.markdown("### 📥 Exportar Resultados")
-            
-            df_export = df_rfm.reset_index().sort_values(by='Prioridade')
-            
-            columns_remove = ['R_Score', 'M_Score', 'F_Score', 'RFM_Score', 'Prioridade','Link_WhatsApp','Mensagem']
+                # --- DOWNLOAD FUNCTION ---
+                st.markdown(idiom("### 📥 Exportar Resultados", "### 📥 Export Results"))
+                
+                df_export = df_rfm.reset_index().sort_values(by=idiom('Prioridade', 'Priority'))
+                columns_remove = ['R_Score', 'M_Score', 'F_Score', 'RFM_Score', idiom('Prioridade', 'Priority'), 'Link_WhatsApp', idiom('Mensagem', 'Message')]
+                df_export = df_export.drop(columns=columns_remove, errors='ignore')
 
-            df_export = df_export.drop(columns=columns_remove, errors='ignore')
-
-            # Create space of memory
-            memory = io.BytesIO()
-            
-            # Put the excel file on this space
-            with pd.ExcelWriter(memory, engine='openpyxl') as writer:
-                df_export.to_excel(writer, index=False, sheet_name='Clientes_RFM')
-            
-            # The download button uses that file to export
-            st.download_button(
-                label="📥 Baixar Base Completa (Excel)",
-                data=memory.getvalue(),
-                file_name='base_clientes_classificada.xlsx',
-                mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', # Universal code for .xlsx
-                type="primary"
-            )
+                memory = io.BytesIO()
+                
+                with pd.ExcelWriter(memory, engine='openpyxl') as writer:
+                    df_export.to_excel(writer, index=False, sheet_name='Clientes_RFM')
+                
+                st.download_button(
+                    label=idiom("📥 Baixar Base Completa (Excel)", "📥 Download Full Database (Excel)"),
+                    data=memory.getvalue(),
+                    file_name='base_clientes_classificada.xlsx',
+                    mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    type="primary"
+                )
 
     except Exception as e:
-        st.error("Por favor, verifique o direcionamento da colunas")
+        st.error(f"{idiom('Erro interno:', 'Internal error:')} {e}")
 
 else:
-    st.info("👈 Comece fazendo upload do arquivo ou selecionando o modo Exemplo na barra lateral.")
+    st.info(idiom("👈 Comece fazendo upload do arquivo ou selecionando o modo Exemplo na barra lateral.", "👈 Start by uploading a file or selecting Example mode in the sidebar."))
