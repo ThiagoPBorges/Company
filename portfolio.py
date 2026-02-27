@@ -614,3 +614,12 @@ with tab_portfolio:
             
             with st.container(border=True):
                 st.page_link("pages/1_detector_vips.py", label=idiom("Testar Aplicativo", "Test Application"), icon="▶️")
+
+    # --- CARD PROJECT 2 ---
+    with st.container(border=True):
+         col_imagem, col_texto = st.columns([1, 2])
+        
+         with col_texto:
+            with st.container(border=True):
+                st.subheader("📑 Summary ATS Analyzer")
+                st.page_link("pages/2_ats_analyzer.py", label=idiom("Aplicativo em desenvolvimento...", "Development Application..."), icon="▶️",disabled=True)

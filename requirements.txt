@@ -4,3 +4,7 @@ openpyxl
 selenium
 webdriver_manager
 plotly
+pdfplumber
+easyocr
+spacy
+scikit-learn
