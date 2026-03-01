@@ -622,4 +622,4 @@ with tab_portfolio:
          with col_texto:
             with st.container(border=True):
                 st.subheader("📑 Summary ATS Analyzer")
-                st.page_link("pages/2_ats_analyzer.py", label=idiom("Aplicativo em desenvolvimento...", "Development Application..."), icon="▶️",disabled=True)
+                st.page_link("pages/2_ats_analyzer.py", label=idiom("Aplicativo em desenvolvimento...", "Development Application..."), icon="▶️",disabled=False)
