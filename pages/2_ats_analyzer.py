@@ -1,27 +1,19 @@
 import streamlit as st
 import pdfplumber
-import re
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 import matplotlib.pyplot as plt
-import seaborn as sns
-from pdf2image import convert_from_bytes
+import numpy as np
+import spacy
 import pytesseract
 from PIL import Image
-import cv2
-import numpy as np
-import base64
-import spacy
-import requests
-from bs4 import BeautifulSoup
+from pdf2image import convert_from_bytes
 import os
 from portfolio import idiom
 
+# --------- 1. INFRAESTRUTURA E CONFIGURAÇÕES ---------
 
-# --------- EXECUTION & CONFIG ---------
-
-
-# Define local system is Wisdows (Use machine path), or Linux (Use ST.Cloud)
+# Detecção automática de ambiente (Local vs Nuvem)
 if os.name == 'nt':
     pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
     poppler_path = r'C:\Program Files\poppler-25.12.0\Library\bin'
@@ -29,209 +21,211 @@ else:
     pytesseract.pytesseract.tesseract_cmd = 'tesseract'
     poppler_path = None
 
+st.set_page_config(page_title="ATS Master | Pro", page_icon="🛡️", layout="wide")
 
-st.set_page_config(page_title="ATS Analyzer",
-                   page_icon="📑",
-                   layout="wide",
-                   initial_sidebar_state="expanded"
-                   )
-
-
-# CSS for Branding
+# CSS Premium (Oculta elementos nativos do Streamlit e moderniza a UI)
 st.markdown("""
     <style>
-    [data-testid="stMetricValue"] { color: #007bff; font-weight: bold; }
-    [data-testid="stPills"] div[role="listitem"] { background-color: #e8f0fe; border: 1px solid #007bff; }
-    div[data-testid="metric-container"] { background-color: #ffffff; border: 1px solid #e0e0e0; padding: 15px; border-radius: 10px; }
+    .main { background-color: #f4f7f9; }
+    h1, h2, h3 { color: #1e3a8a; font-family: 'Inter', sans-serif; }
+    .step-card { background-color: #ffffff; padding: 25px; border-radius: 12px; border-left: 5px solid #2563eb; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    [data-testid="stPills"] div[role="listitem"] { background-color: #eff6ff; border: 1px solid #3b82f6; color: #1e40af; font-weight: 500; }
     </style>
     """, unsafe_allow_html=True)
 
+# --------- 2. MOTORES DE INTELIGÊNCIA (NLP) ---------
 
-# --------- NLP ENGINE ---------
+@st.cache_resource
+def load_nlp():
+    return spacy.load("pt_core_news_sm")
 
-nlp = spacy.load("pt_core_news_sm")
+nlp = load_nlp()
 
-# --------- FUNCTIONS ---------
+def extrair_tech_entities(txt):
+    """Extrai tecnologias, softwares e jargões da área."""
+    doc = nlp(txt)
+    return list(set([ent.text.lower() for ent in doc.ents if ent.label_ in ["ORG", "MISC"]]))
 
 def clean_text(txt):
-    '''
-    Intelligent cleaning of text: PoS Tagging + Lematization (Reduce words to their root - EX : Analists to Analyst) + Filter of numbers
-    '''
-    # Process text with Spacy
+    """Filtro semântico: lematização, remoção de stopwords, pontuação e números."""
     doc = nlp(txt.lower())
     pos_allowed = ["NOUN", "ADJ", "PROPN"]
-    words = [word.lemma_ for word in doc # Return to root
-             if word.pos_ in pos_allowed # Only types of examples
-             and not word.is_stop # Filters and retains only meaningful words
-             and not word.is_punct # Remove punctuation
-             and not any(char.isdigit() for char in word.text) #Remove numbers
-             and len(word.text) > 2]
-   
-    return " ".join(words) # Put it all together
-
-
-def extrair_entidades(txt):
-    doc = nlp(txt.lower())
-    entities = {"Tecnologias/Org": [], "Datas/Tempo": [], "Locais": []}
-    for ent in doc.ents:
-        if ent.label_ == "ORG": entities["Tecnologias/Org"].append(ent.text)
-        elif ent.label_ == "LOC": entities["Locais"].append(ent.text)
-        elif ent.label_ == "MISC": entities["Tecnologias/Org"].append(ent.text)
-
-    return entities
-
-
-def categorizar_skills(keywords_list, area):
-    categorias = {"Hard Skills": 0, "Soft Skills": 0, "Business": 0}
-    doc = nlp(" ".join(keywords_list))
-
-    # Dicionários de "pesos extras" por área
-    expertise_map = {
-        "Tecnologia / Dados": ['python', 'sql', 'bi', 'cloud', 'devops', 'machine'],
-        "Saúde": ['clínico', 'paciente', 'diagnóstico', 'terapia', 'exame'],
-        "Engenharia": ['autocad', 'projeto', 'norma', 'estrutural', 'obra'],
-        "Vendas / Marketing": ['crm', 'funil', 'conversão', 'leads', 'venda']
-    }
-
-    extra_terms = expertise_map.get(area, [])
-
-    for token in doc:
-        t_low = token.text.lower()
-        # Hard Skills: Nomes Próprios ou termos da área escolhida
-        if token.pos_ == "PROPN" or any(term in t_low for term in extra_terms):
-            categorias["Hard Skills"] += 2
-        # Soft Skills: Adjetivos (comunicativo, ágil, etc)
-        elif token.pos_ == "ADJ":
-            categorias["Soft Skills"] += 1
-        # Business: O restante dos substantivos comuns
-        else:
-            categorias["Business"] += 1
-           
-    return categorias
-
-
+    return [t.lemma_ for t in doc if t.pos_ in pos_allowed and not t.is_stop and not t.is_punct and not any(c.isdigit() for c in t.text) and len(t.text) > 2]
 
 def plot_radar(categorias):
+    """Gera o mapa visual de competências do candidato."""
     labels, values = list(categorias.keys()), list(categorias.values())
     num_vars = len(labels)
+    
+    # Previne erro se o gráfico estiver zerado
+    if sum(values) == 0:
+        values = [0.1, 0.1, 0.1]
+        
     angles = np.linspace(0, 2 * np.pi, num_vars, endpoint=False).tolist()
     values += values[:1]; angles += angles[:1]
+    
     fig, ax = plt.subplots(figsize=(4, 4), subplot_kw=dict(polar=True))
-    ax.fill(angles, values, color='#007bff', alpha=0.25)
-    ax.plot(angles, values, color='#007bff', linewidth=2)
-    ax.set_yticklabels([]); ax.set_xticks(angles[:-1]); ax.set_xticklabels(labels)
-
+    ax.fill(angles, values, color='#2563eb', alpha=0.3)
+    ax.plot(angles, values, color='#2563eb', linewidth=2)
+    ax.set_xticks(angles[:-1]); ax.set_xticklabels(labels, fontsize=10, fontweight='bold', color='#334155')
+    ax.set_yticklabels([])
+    ax.spines['polar'].set_visible(False) # Deixa o gráfico mais limpo
     return fig
 
+def gerar_card_premium(score_final, score_conteudo, score_tech, num_issues):
+    """Gera o Card de Conversão SaaS usando HTML/CSS puro sem quebrar no Markdown."""
+    sf, sc, st_tech = int(score_final * 100), int(score_conteudo * 100), int(score_tech * 100)
+    
+    def get_color(val):
+        if val >= 75: return "#22c55e", "#dcfce7" # Verde
+        if val >= 50: return "#f59e0b", "#fef3c7" # Laranja
+        return "#ef4444", "#fee2e2"               # Vermelho
 
+    color_sf, bg_sf = get_color(sf)
+    color_sc, bg_sc = get_color(sc)
+    color_st, bg_st = get_color(st_tech)
 
-def gerar_dicas_ouro(missing_words, area):
-    dicas = []
+    # HTML formatado em uma única string sem recuos no início da linha
+    html = (
+        f'<div style="background-color: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); max-width: 400px; margin: 0 auto; font-family: \'Inter\', sans-serif;">'
+        f'<h3 style="text-align: center; color: #334155; margin-bottom: 5px; font-weight: 500;">Score de Aderência</h3>'
+        f'<h1 style="text-align: center; color: {color_sf}; font-size: 54px; font-weight: 800; margin: 0;">{sf}/100</h1>'
+        f'<p style="text-align: center; color: #64748b; font-size: 14px; margin-top: 5px; margin-bottom: 25px;">{num_issues} Gaps Críticos Encontrados</p>'
+        f'<hr style="border: none; border-top: 1px solid #f1f5f9; margin-bottom: 20px;">'
+        
+        f'<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc;">'
+        f'<span style="color: #475569; font-weight: 600; font-size: 13px;">CONTEÚDO E SEMÂNTICA</span>'
+        f'<div><span style="background-color: {bg_sc}; color: {color_sc}; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 14px;">{sc}%</span></div>'
+        f'</div>'
+        
+        f'<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc;">'
+        f'<span style="color: #475569; font-weight: 600; font-size: 13px;">HARD SKILLS (NER)</span>'
+        f'<div><span style="background-color: {bg_st}; color: {color_st}; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 14px;">{st_tech}%</span></div>'
+        f'</div>'
+        
+        f'<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #f8fafc; opacity: 0.7;">'
+        f'<span style="color: #475569; font-weight: 600; font-size: 13px;">MÉTRICAS E IMPACTO</span>'
+        f'<div><span style="background-color: #f1f5f9; color: #94a3b8; padding: 4px 12px; border-radius: 12px; font-weight: 700; font-size: 14px;">??%</span><span style="margin-left: 8px;">🔒</span></div>'
+        f'</div>'
+        
+        f'<div style="margin-top: 30px;">'
+        f'<a href="#" style="display: block; text-align: center; text-decoration: none; width: 100%; padding: 16px 0; background-color: #2563eb; color: white; border-radius: 12px; font-size: 16px; font-weight: bold; box-sizing: border-box; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">'
+        f'Desbloquear Relatório Completo 🚀'
+        f'</a>'
+        f'</div>'
+        f'</div>'
+    )
+    return html
 
-    # Processamos as palavras que faltam para entender a categoria
-    doc_missing = nlp(" ".join(missing_words))
-    hard_missing = [token.text for token in doc_missing if token.pos_ == "PROPN"][:3]
-    soft_missing = [token.text for token in doc_missing if token.pos_ == "ADJ"][:2]
+# --------- 3. INTERFACE DE USUÁRIO (UI) ---------
 
-    # Dica de Hard Skill
-    if hard_missing:
-        termos = ", ".join(hard_missing)
-        dicas.append(f"🎯 **Hard Skill:** Adicione uma seção de 'Projetos e Ferramentas' e mencione explicitamente sua experiência ou estudos em: **{termos}**.")
-
-    # Dica de Soft Skill / Atitude
-    if soft_missing:
-        termos = " e ".join(soft_missing)
-        dicas.append(f"💡 **Diferencial:** No seu resumo profissional, utilize palavras como **'{termos}'** para demonstrar alinhamento com a cultura da vaga.")
-
-    # Dica Estratégica baseada na Área
-
-    if area == "Tecnologia / Dados":
-        dicas.append("🚀 **Estratégia:** Foque em descrever resultados quantitativos, como 'Redução de X% no tempo de processamento' ou 'Aumento de eficiência em Y%'.")
-    else:
-        dicas.append("📈 **Estratégia:** Certifique-se de que os processos e resultados mencionados no seu currículo utilizam o vocabulário específico desta descrição de vaga.")
-
-    return dicas
-
-
-# --------- MAIN INTERFACE ---------
+st.title("🛡️ ATS Master Intelligence")
+st.subheader("Transforme seu currículo em um imã de entrevistas validado por Inteligência Artificial.")
 
 with st.sidebar:
-    escolha = st.radio("Language", ['PT - 🇧🇷', 'EN - 🇺🇸'], horizontal=True, label_visibility="collapsed")
-    st.session_state['idiom'] = 'PT' if 'PT' in escolha else 'EN'
-    st.page_link("portfolio.py", label=idiom("Home", "Home"), icon="🏠")
-
+    st.header("💎 Área do Candidato")
+    area = st.selectbox("Seu Nicho Profissional", ["Tecnologia / Dados", "Administração", "Engenharia", "Vendas", "Saúde"])
     st.divider()
+    st.info("Este motor simula a mesma triagem algorítmica utilizada pelas maiores plataformas de RH (Gupy, Workday, LinkedIn).")
+    st.page_link("portfolio.py", label="Voltar ao Portfólio", icon="🏠")
 
-    area_atuacao = st.selectbox(
-        idiom("Área de Atuação", "Area of Expertise"),
-        ["Geral / Admin", "Tecnologia / Dados", "Saúde", "Engenharia", "Vendas / Marketing"]
-    )
+col_vaga, col_cv = st.columns(2)
+with col_vaga:
+    with st.container(border=True):
+        st.write("🎯 **Passo 1: A Vaga dos Sonhos**")
+        job_input = st.text_area("Cole a descrição da vaga", height=150, help="Quanto mais completa a descrição, mais preciso será o diagnóstico.", label_visibility="collapsed")
+with col_cv:
+    with st.container(border=True):
+        st.write("📄 **Passo 2: Seu Currículo**")
+        file_input = st.file_uploader("Subir Currículo", type=["pdf", "jpg", "png"], label_visibility="collapsed")
 
-job_input = st.text_area(idiom("Cole a descrição...", "Paste description..."), max_chars=10000)
-
-file_input = st.file_uploader(idiom("Upload do Currículo", "Upload Resume"), type=["pdf","jpg","png","jpeg"])
-
-# --- PROCESSAMENTO E OUTPUT ---
+# --------- 4. PROCESSAMENTO E DIAGNÓSTICO ---------
 
 if file_input and job_input:
-    with st.spinner(idiom("Analisando perfil...", "Analyzing profile...")):
-        # OCR e Extração
+    with st.spinner("Analisando padrões semânticos e extraindo entidades..."):
+        
+        # Leitura de Arquivo Híbrida
         if file_input.name.lower().endswith(".pdf"):
-            with pdfplumber.open(file_input) as pdf_doc:
-                raw_text = " ".join([p.extract_text() for p in pdf_doc.pages if p.extract_text()])
-            if not raw_text.strip():
-                images = convert_from_bytes(file_input.getvalue(), poppler_path=poppler_path)
-                raw_text = " ".join([pytesseract.image_to_string(np.array(img), lang='por+eng') for img in images])
+            with pdfplumber.open(file_input) as pdf:
+                raw_cv = " ".join([p.extract_text() for p in pdf.pages if p.extract_text()])
+            if not raw_cv.strip():
+                imgs = convert_from_bytes(file_input.getvalue(), poppler_path=poppler_path)
+                raw_cv = " ".join([pytesseract.image_to_string(np.array(i), lang='por+eng') for i in imgs])
         else:
-            raw_text = pytesseract.image_to_string(np.array(Image.open(file_input)), lang='por+eng')
+            raw_cv = pytesseract.image_to_string(np.array(Image.open(file_input)), lang='por+eng')
 
-        # Inteligência
-        resume_clean, job_clean = clean_text(raw_text), clean_text(job_input)
-        vectorizer = TfidfVectorizer(ngram_range=(1, 2))
-        tfidf_matrix = vectorizer.fit_transform([resume_clean, job_clean])
-        score = cosine_similarity(tfidf_matrix)[0][1]
+        # Limpeza e NLP
+        cv_words, job_words = clean_text(raw_cv), clean_text(job_input)
+        cv_clean, job_clean = " ".join(cv_words), " ".join(job_words)
         
-        entidades = extrair_entidades(raw_text)
-        keywords_found = set(resume_clean.split()).intersection(set(job_clean.split()))
-        cat_data = categorizar_skills(keywords_found, area_atuacao)
-        missing_words = sorted(list(set(job_clean.split()) - set(resume_clean.split())))
+        # Score de Contexto (TF-IDF)
+        vectorizer = TfidfVectorizer(ngram_range=(1, 3))
+        try:
+            matrix = vectorizer.fit_transform([cv_clean, job_clean])
+            score_text = cosine_similarity(matrix)[0][1]
+        except ValueError:
+            score_text = 0.0 # Previne erro se os textos forem muito curtos
 
-        # DASHBOARD
+        # Score de Hard Skills (NER)
+        tech_job = extrair_tech_entities(job_input)
+        tech_cv = extrair_tech_entities(raw_cv)
+        match_tech = len(set(tech_job).intersection(set(tech_cv))) / len(tech_job) if tech_job else score_text
+        
+        # O Motor Ponderado
+        final_score = (score_text * 0.6) + (match_tech * 0.4)
+        missing_words = sorted(list(set(job_words) - set(cv_words)))
+
+        # --- EXIBIÇÃO DE RESULTADOS PREMIUM ---
         st.divider()
-        m1, m2, m3 = st.columns(3)
-        m1.metric(idiom("Índice de Match", "Match Index"), f"{(score * 100):.2f}%")
-        m2.metric(idiom("Skills Detectadas", "Detected Skills"), len(keywords_found))
-        m3.metric(idiom("Gaps", "Gaps"), len(missing_words))
-
-        c_radar, c_ner = st.columns([1, 1.5], gap="medium")
-        with c_radar:
-            with st.container(border=True):
-                st.write(f"**{idiom('Equilíbrio de Perfil', 'Skill Balance')}**")
-                st.pyplot(plot_radar(cat_data))
+        st.header("📋 Seu Diagnóstico de Performance")
         
-        with c_ner:
-            with st.container(border=True):
-                st.write(f"**{idiom('Mapeamento de IA (NER)', 'AI Mapping')}**")
-                n1, n2, n3 = st.columns(3)
-                n1.write(f"🏢 **Tech**\n" + "\n".join([f"- {i}" for i in list(set(entidades["Tecnologias/Org"]))[:5]]))
-                n2.write(f"📍 **Locais**\n" + "\n".join([f"- {i}" for i in list(set(entidades["Locais"]))[:3]]))
-                n3.write(f"📅 **Datas**\n" + "\n".join([f"- {i}" for i in list(set(entidades["Datas/Tempo"]))[:3]]))
+        col_card, col_radar = st.columns([1.2, 1.5], gap="large")
+        
+        with col_card:
+            # Exibe o Card SaaS HTML
+            st.markdown(gerar_card_premium(final_score, score_text, match_tech, len(missing_words)), unsafe_allow_html=True)
+            
+        with col_radar:
+            st.write("### 🧭 Mapa de Perfil (IA)")
+            skills = {"Hard Skills": 0, "Soft Skills": 0, "Business": 0}
+            for word in set(cv_words).intersection(set(job_words)):
+                t = nlp(word)[0]
+                if t.pos_ == "PROPN": skills["Hard Skills"] += 2
+                elif t.pos_ == "ADJ": skills["Soft Skills"] += 1
+                else: skills["Business"] += 1
+            st.pyplot(plot_radar(skills))
+            st.caption("O radar analisa se o recrutador te enxerga como um perfil puramente técnico, de negócios ou balanceado.")
 
-        # INSIGHTS
-        st.markdown("### ✨ " + idiom("Dicas de Ouro", "Golden Tips"))
-        dicas = gerar_dicas_ouro(missing_words, area_atuacao)
-        d_col1, d_col2, d_col3 = st.columns(3)
-        d_col1.success(dicas[0]); d_col2.success(dicas[1]); d_col3.info(dicas[2])
+        # --- PLANO DE AÇÃO (POR QUE PAGAR?) ---
+        st.header("🛠️ Plano de Ação Direcionado", divider="grey")
+        st.write("A inteligência artificial detectou que as seguintes otimizações podem dobrar suas chances de entrevista:")
+        
+        t1, t2 = st.columns(2)
+        with t1:
+            st.markdown(f"""
+            <div class='step-card'>
+                <h4 style="color: #1e40af; margin-top: 0;">✍️ Ajuste Semântico Imediato</h4>
+                <p>O algoritmo eliminatório sentiu falta destas palavras essenciais:</p>
+                <b>{', '.join(missing_words[:4])}</b>
+                <p style="margin-top: 10px; font-size: 14px; color: #64748b;"><b>Como resolver:</b> Adicione estes exatos termos no seu resumo principal (sem usar sinônimos).</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+        with t2:
+            st.markdown(f"""
+            <div class='step-card'>
+                <h4 style="color: #1e40af; margin-top: 0;">🔧 Validação de Stack Técnica</h4>
+                <p>A vaga exige conhecimento explícito nestas ferramentas/organizações:</p>
+                <b>{', '.join(tech_job[:3] if tech_job else ['Habilidades Específicas'])}</b>
+                <p style="margin-top: 10px; font-size: 14px; color: #64748b;"><b>Como resolver:</b> Crie uma seção 'Ferramentas' e liste-as como substantivos próprios.</p>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # AUDITORIA
-        with st.expander(idiom("🔍 Detalhes Técnicos e Keywords", "🔍 Technical Details")):
-            k1, k2 = st.columns(2)
-            k1.write("**Found:**"); k1.pills("F", list(keywords_found), label_visibility="collapsed")
-            k2.write("**Missing:**"); k2.pills("F", missing_words, label_visibility="collapsed")
-            col_res, col_job = st.columns(2)
-            with col_res:
-                st.caption("Resume (Cleaned)")
-                st.info(resume_clean)
-            with col_job:
-                st.caption("Job (Cleaned)")
-                st.success(job_clean)
+        # --- AUDITORIA DE CONFIANÇA ---
+        with st.expander("🔍 Modo Desenvolvedor: Como a IA enxergou seu CV"):
+            st.write("ATS não leem layouts bonitos, eles leem dados puros. Abaixo está a extração literal do seu documento:")
+            st.code(cv_clean[:800] + "...")
+            st.warning("Se o texto acima estiver misturado ou ilegível, o software do RH não conseguirá ler seu currículo. Use um formato mais simples.")
+
+else:
+    st.info("💡 Insira a descrição da vaga e faça o upload do seu currículo para liberar o motor de análise.")
